@@ -131,6 +131,8 @@
   .page-header .page-title { font-size: 28px; font-weight: 700; margin: 0 0 2px; letter-spacing: -0.03em; line-height: 1.15; }
   .page-header .page-sub { color: var(--muted); margin: 0; font-size: 13px; letter-spacing: -0.01em; }
   .page-actions { display: flex; gap: 10px; flex-shrink: 0; align-items: center; }
+  .modal.group .page-header { flex-direction: column; align-items: stretch; }
+  .attendee-pager { justify-content: space-between; }
 
   /* Inspector (right rail): white panel, iOS pills, no cyan NBAs */
   .inspector { grid-column: 3; grid-row: 2;
@@ -327,6 +329,7 @@
   .modal-top .sub { color: var(--muted); font-size: 12px; letter-spacing: -0.01em; line-height: 1.3;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+  .modal.one-on-one .modal-top .sub { white-space: normal; overflow: visible; }
   .modal-top .sub-link { background: transparent; border: 0; padding: 0; border-radius: 0;
     color: var(--ink); font-weight: 600; font-size: 13px; letter-spacing: -0.01em; cursor: pointer;
     white-space: nowrap; text-decoration: none; }
@@ -360,17 +363,22 @@
   .modal-main h2.section-title:first-child { margin-top: 0; }
   .modal-main h2.section-title#s-products { margin-top: 20px; }
   .modal-main h2.section-title .chev { color: var(--muted); font-size: 11px; }
+  .modal-main h2.section-title[hidden] { display: none !important; }
+  .modal-main h2.section-title[hidden] + .card { display: none !important; }
 
-  /* In-visit views — iOS segmented control, centered in the nav bar. */
-  .view-tabs { grid-column: 1 / -1; grid-row: 2; display: flex; align-items: center; justify-content: center;
-    gap: 0; border-bottom: 0.5px solid var(--line); background: #fff; padding: 8px 16px; }
-  .view-tabs .vt { background: rgba(120,120,128,.16); border: 0; border-radius: 0;
-    padding: 6px 18px; min-height: 32px; margin: 0; font-size: 13px; font-weight: 500;
-    color: var(--ink); cursor: pointer; }
-  .view-tabs .vt:first-child { border-radius: 8px 0 0 8px; }
-  .view-tabs .vt:last-child { border-radius: 0 8px 8px 0; }
-  .view-tabs .vt.active { background: #fff; font-weight: 600;
-    box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 0 0 .5px rgba(0,0,0,.04); position: relative; z-index: 1; }
+  /* In-visit tools. Intelligent Content and Dictate live in the menu. */
+  .view-tabs { grid-column: 1 / -1; grid-row: 2; display: flex; align-items: center; justify-content: flex-end;
+    gap: 8px; border-bottom: 0.5px solid var(--line); background: #fff; padding: 8px 16px; position: relative; }
+  .visit-more-wrap { position: relative; }
+  .visit-menu { position: absolute; top: calc(100% + 6px); right: 0; z-index: 30;
+    min-width: 220px; padding: 6px; background: #fff; border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(0,0,0,.16); display: flex; flex-direction: column; }
+  .visit-menu[hidden] { display: none !important; }
+  .visit-menu button { border: 0; background: transparent; text-align: left; padding: 10px 12px;
+    border-radius: 8px; font-size: 17px; color: var(--ink); cursor: pointer; }
+  .visit-menu button:hover { background: var(--fill); }
+  .visit-done[hidden] { display: none !important; }
+  .modal.is-content .visit-tools { justify-content: space-between; }
   .modal-view { display: none; }
   .modal-view.active { display: block; }
 
@@ -427,6 +435,15 @@
   .jump-nav .j:hover { background: var(--fill); color: var(--ink); }
   .jump-nav .j.active { background: var(--fill); color: var(--ink); font-weight: 600; }
   .jump-nav .jump-add { flex: 0 0 auto; }
+  .still-open { font-size: 13px; color: var(--muted); white-space: nowrap; letter-spacing: -0.01em; }
+  .present-context { font-size: 15px; color: var(--ink); letter-spacing: -0.01em; margin-bottom: 12px; }
+  .present-context span { color: var(--muted); }
+  .present-now { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; background: var(--fill); }
+  .present-now .meta, .present-alt .meta { flex: 1; min-width: 0; }
+  .present-now .name, .present-alt .name { font-weight: 600; letter-spacing: -0.015em; }
+  .present-now .sub, .present-alt .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .present-alt { display: flex; align-items: center; gap: 12px; padding: 12px 4px 4px; }
+  .present-more { display: flex; justify-content: flex-end; padding-top: 8px; }
 
   .modal-agent { grid-row: 3; border-left: 1px solid var(--line);
     background: var(--rail); padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow: auto; min-height: 0; }
@@ -557,6 +574,15 @@
   }
   .sheet-foot .foot-note { margin-right: auto; color: var(--muted); font-size: 11px; }
   .sheet.add-sheet { width: 420px; background: #f2f2f7; }
+  .add-search { padding: 0 12px 12px; background: #f2f2f7; }
+  .add-search .search { margin: 0; cursor: text; }
+  .add-search .glyph { width: 18px; height: 18px; display: inline-flex; }
+  .add-search .glyph svg { width: 16px; height: 16px; }
+  .add-search input { border: 0; background: transparent; flex: 1; min-width: 0;
+    font: inherit; font-size: 17px; letter-spacing: -0.02em; color: var(--ink); outline: none; }
+  .add-search input::placeholder { color: var(--muted); }
+  .add-item[hidden], .add-group[hidden], .add-empty[hidden] { display: none !important; }
+  .add-empty { margin: 8px 4px 0; color: var(--muted); font-size: 15px; text-align: center; }
   .add-catalog { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
   .add-group { background: #fff; border-radius: 12px; overflow: hidden; }
   .add-group-h { width: 100%; border: 0; background: transparent; cursor: pointer;
@@ -697,6 +723,7 @@
   body.sidebar-collapsed .sidebar-head { justify-content: center; margin-bottom: 8px; }
   body.sidebar-collapsed .sidebar .search,
   body.sidebar-collapsed .nav-children,
+  body.sidebar-collapsed .nav-group.open .nav-children,
   body.sidebar-collapsed .nav-chev,
   body.sidebar-collapsed .nav-item .label,
   body.sidebar-collapsed .nav-item .badge { display: none; }
@@ -713,6 +740,31 @@
   .ipad.agent-collapsed .inspector .agent-toggle { right: auto; left: 50%; transform: translateX(-50%); }
   .modal.one-on-one.agent-collapsed { grid-template-columns: 1fr 56px; }
   .modal.group.agent-collapsed       { grid-template-columns: 240px 1fr 56px; }
+  .modal.group.attendees-collapsed { grid-template-columns: 56px minmax(0, 1fr) 280px; }
+  .modal.group.agent-collapsed.attendees-collapsed { grid-template-columns: 56px minmax(0, 1fr) 56px; }
+  .attendees-head { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+  .attendees-toggle { align-self: flex-end; }
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendees {
+    align-items: center; overflow-x: hidden; padding: 8px 4px;
+  }
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendees-head {
+    align-items: center; border-bottom: 0; padding: 8px 4px;
+  }
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendees-head .count,
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendees-head .progress,
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendee-row .meta,
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendee-row .chip,
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendee-add,
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendees > .btn,
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendee-row:not(:has(.doc-avatar)) { display: none; }
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendee-row {
+    justify-content: center; padding: 6px 0; border-bottom: 0; width: 100%; background: transparent;
+  }
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendee-row.active .doc-avatar {
+    box-shadow: 0 0 0 2px var(--ink);
+  }
+  body:not(.device-phone) .modal.group.attendees-collapsed .attendees-toggle { align-self: center; }
+  body.device-phone .attendees-toggle { display: none; }
   .modal.agent-collapsed .modal-agent { padding: 10px 6px; overflow: hidden; }
   .modal.agent-collapsed .modal-agent > *:not(.agent-toggle):not(.inspector-rail) { display: none; }
   .modal.agent-collapsed .modal-agent .inspector-rail { display: flex; margin-top: 36px; }
@@ -742,6 +794,224 @@
   /* The in-visit wrap must stay a flex column so the body gets a real height and can scroll. */
   .modal-wrap.mode-pane.active { display: flex; }
   .modal { height: 100%; }
+
+  /* Demo device switch — outside the frame */
+  .device-switch { display: flex; gap: 4px; margin-left: 8px; }
+  .device-opt { background: #2b2b2b; color: #e5e7eb; border: 0; padding: 6px 10px;
+    border-radius: 6px; cursor: pointer; }
+  .device-opt.active { background: #fff; color: #111; }
+
+  .phone-bar, .phone-tabs, .phone-scrim, .phone-add, .phone-agent, .phone-attendees, .phone-attendees-scrim { display: none; }
+
+  /* iPhone frame — compact width. iPad rules above stay in effect until this class is set. */
+  body.device-phone .ipad,
+  body.device-phone.sidebar-collapsed .ipad,
+  body.device-phone .ipad.agent-collapsed,
+  body.device-phone.sidebar-collapsed .ipad.agent-collapsed {
+    width: 393px; height: 852px; border-radius: 36px;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: 47px 44px minmax(0, 1fr) 80px !important;
+  }
+  body.device-phone .statusbar { grid-column: 1; grid-row: 1; border-bottom: 0; padding: 14px 16px 0; }
+  body.device-phone .statusbar .left { font-size: 0; }
+  body.device-phone .statusbar .left::before { content: "9:41"; font-size: 15px; font-weight: 600; color: var(--ink); }
+  body.device-phone .statusbar > span:last-child { display: none; }
+  body.device-phone .phone-bar {
+    grid-column: 1; grid-row: 2; display: flex; align-items: center; gap: 8px;
+    padding: 0 12px 6px; background: #fff; min-width: 0;
+  }
+  body.device-phone .phone-title { flex: 1; min-width: 0; font-size: 17px; font-weight: 600;
+    letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  body.device-phone .phone-lead, body.device-phone .phone-bar .phone-agent {
+    display: inline-flex; width: 32px; height: 32px; border-radius: 8px;
+  }
+  body.device-phone .main { grid-column: 1; grid-row: 3; padding: 4px 16px 20px; }
+  body.device-phone .page-header { flex-direction: column; align-items: stretch; gap: 8px; }
+  body.device-phone .page-header .page-title { font-size: 34px; }
+  .modal.group .page-header .page-title,
+  body.device-phone .modal.group .page-header .page-title { font-size: 22px; }
+  body.device-phone .phone-tabs {
+    grid-column: 1; grid-row: 4; display: flex; align-items: stretch; justify-content: space-around;
+    background: rgba(255,255,255,.92); border-top: 0.5px solid var(--line);
+    padding: 6px 4px 18px; z-index: 4;
+  }
+  body.device-phone .phone-tab {
+    flex: 1; border: 0; background: transparent; color: var(--muted);
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    font-size: 10px; font-weight: 500; letter-spacing: -0.01em; cursor: pointer; position: relative;
+    padding: 2px 0;
+  }
+  body.device-phone .phone-tab .glyph { width: 22px; height: 22px; display: inline-flex; color: inherit; }
+  body.device-phone .phone-tab .glyph svg { width: 20px; height: 20px; }
+  body.device-phone .phone-tab.active { color: var(--ink); font-weight: 600; }
+  body.device-phone .phone-badge {
+    position: absolute; top: 0; left: 50%; margin-left: 6px;
+    min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px;
+    background: var(--ink); color: #fff; font-size: 10px; font-weight: 600;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+
+  /* Displace menu: the sidebar pushes the page and leaves a dimmed strip. */
+  body.device-phone .sidebar {
+    position: absolute; top: 0; bottom: 0; left: 0; width: 300px; z-index: 40;
+    transform: translateX(-100%); transition: transform .28s ease;
+    border-right: 0; box-shadow: none;
+  }
+  body.device-phone .sidebar-head { display: none; }
+  body.device-phone.phone-menu-open .screen.active > .sidebar { transform: translateX(0); }
+  body.device-phone .statusbar,
+  body.device-phone .phone-bar,
+  body.device-phone .main,
+  body.device-phone .phone-tabs { transition: transform .28s ease; }
+  body.device-phone.phone-menu-open .screen.active > .statusbar,
+  body.device-phone.phone-menu-open .screen.active > .phone-bar,
+  body.device-phone.phone-menu-open .screen.active > .main,
+  body.device-phone.phone-menu-open .screen.active > .phone-tabs { transform: translateX(300px); }
+  body.device-phone.phone-menu-open .screen.active > .phone-scrim {
+    display: block; position: absolute; top: 0; right: 0; bottom: 0; width: 93px;
+    z-index: 45; background: rgba(0,0,0,.28); cursor: pointer;
+  }
+
+  /* Compact page components */
+  body.device-phone .vfields { display: none; }
+  body.device-phone .visit-row { flex-wrap: nowrap; align-items: center; }
+  body.device-phone .visit-row .vtime { width: 46px; font-size: 13px; }
+  body.device-phone .account-grid { grid-template-columns: 1fr; }
+  body.device-phone .tier-bar { grid-template-columns: 1fr 1fr; }
+  body.device-phone .highlights { grid-template-columns: 1fr 1fr; }
+  body.device-phone .row { flex-direction: column; }
+  body.device-phone .modal-main [style*="repeat(4"],
+  body.device-phone .sheet [style*="repeat(4"] { grid-template-columns: 1fr !important; }
+  body.device-phone .inspector,
+  body.device-phone .modal-agent,
+  body.device-phone .hcp-peek,
+  body.device-phone .agent-toggle,
+  body.device-phone .inspector-rail,
+  body.device-phone .jump-nav,
+  body.device-phone .visit-dock { display: none !important; }
+
+  /* Agent is a sheet, opened from the bar. */
+  body.device-phone.phone-agent-open .screen.active > .inspector,
+  body.device-phone.phone-agent-open #screen-invisit .mode-pane.active .modal-agent {
+    display: flex !important; position: absolute; z-index: 40;
+    left: 0; right: 0; bottom: 0; top: auto; width: auto; height: 72%;
+    grid-column: 1 / -1; grid-row: auto;
+    border-left: 0; border-radius: 16px 16px 0 0;
+    box-shadow: 0 -12px 40px rgba(0,0,0,.2);
+    padding: 16px 16px 24px; overflow: auto; background: #fff;
+  }
+  body.device-phone.phone-agent-open .ipad.agent-collapsed .inspector > *:not(.agent-toggle):not(.inspector-rail),
+  body.device-phone.phone-agent-open .modal.agent-collapsed .modal-agent > *:not(.agent-toggle):not(.inspector-rail) {
+    display: block;
+  }
+
+  /* Visit cover fills the phone. The bottom bar stays off this screen. */
+  body.device-phone #screen-invisit {
+    grid-template-rows: minmax(0, 1fr) !important;
+  }
+  body.device-phone #screen-invisit > .statusbar,
+  body.device-phone #screen-invisit > .phone-bar,
+  body.device-phone #screen-invisit > .phone-tabs,
+  body.device-phone #screen-invisit > .main,
+  body.device-phone #screen-invisit > .sidebar { display: none !important; }
+  body.device-phone .modal-wrap { inset: 0; padding: 0; background: #fff; }
+  body.device-phone .modal,
+  body.device-phone .modal.one-on-one,
+  body.device-phone .modal.one-on-one.agent-collapsed {
+    border-radius: 0; box-shadow: none;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: auto auto minmax(0, 1fr);
+  }
+  body.device-phone .modal.one-on-one .modal-main { grid-column: 1; grid-row: 3; }
+  /* Minimize is the grabber. Close sits in the top-right corner, off the button row. */
+  body.device-phone .modal > .sheet-grabber { display: flex; top: 5px; z-index: 6; height: 18px; padding-top: 4px; }
+  body.device-phone .modal-top {
+    display: block; position: relative;
+    padding: 28px 12px 4px; min-height: 0;
+  }
+  body.device-phone .modal-top .mt-ident {
+    display: grid; grid-template-columns: 36px minmax(0, 1fr);
+    column-gap: 10px; row-gap: 2px; min-width: 0; padding-right: 0;
+  }
+  body.device-phone .modal-top .mt-avatar { grid-column: 1; grid-row: 1; align-self: center; }
+  body.device-phone .modal-top .mt-ident .mt-title-stack { display: contents; }
+  body.device-phone .modal-top .title {
+    grid-column: 2; grid-row: 1; align-self: center;
+    min-height: 0; padding-right: 0; margin: 0;
+  }
+  body.device-phone .modal-top > .mt-title-stack { min-width: 0; padding-right: 0; }
+  body.device-phone .modal-top > .mt-title-stack .title {
+    display: block; min-height: 32px; padding-right: 176px;
+  }
+  body.device-phone .modal-top .sub { grid-column: 1 / -1; grid-row: 2; white-space: normal; margin-top: 2px; }
+  body.device-phone .modal-top .mt-actions { display: contents; }
+  body.device-phone .modal-top .mt-rule,
+  body.device-phone .modal-top .still-open,
+  body.device-phone .modal-top .btn.voice,
+  body.device-phone .modal-top #get-sig-group { display: none; }
+  body.device-phone .modal.one-on-one .modal-top .sub::after { content: " · Signature open"; }
+  body.device-phone .modal-top .btn { padding: 4px 10px; min-height: 30px; }
+  body.device-phone .modal-top .btn.ghost { position: absolute; top: 28px; left: 12px; right: auto; }
+  body.device-phone .modal-top .btn.primary { position: absolute; top: 28px; right: 46px; }
+  body.device-phone .modal.group .modal-top .btn.primary { right: 84px; }
+  body.device-phone .modal.group .phone-attendees {
+    display: inline-flex; position: absolute; top: 27px; right: 46px; z-index: 6;
+  }
+  /* Name sits under the actions. Save is opposite Submit. */
+  body.device-phone .modal.one-on-one .modal-top .mt-ident,
+  body.device-phone .modal.group .modal-top > .mt-title-stack { margin-top: 38px; }
+  body.device-phone .modal.group .modal-top > .mt-title-stack .title {
+    padding-right: 0; min-height: 0;
+  }
+  body.device-phone .modal-top .phone-agent {
+    display: inline-flex; position: absolute; top: 27px; right: 8px;
+  }
+  body.device-phone .modal [data-visit-close] {
+    position: absolute; top: 0; right: 2px; z-index: 6;
+    width: 28px; height: 22px; background: transparent;
+  }
+  body.device-phone .modal-top .mode-toggle { display: flex; width: 100%; margin-top: 8px; }
+  body.device-phone .modal-top .mode-toggle .mode-opt { flex: 1; text-align: center; padding: 4px 8px; }
+  body.device-phone .view-tabs { padding: 4px 12px 6px; gap: 8px; }
+  body.device-phone .phone-add { display: inline-flex; flex: 0 0 auto; min-height: 32px; padding: 6px 12px; }
+  body.device-phone .modal.group,
+  body.device-phone .modal.group.agent-collapsed {
+    display: flex; flex-direction: column;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  body.device-phone .modal.group .modal-main { flex: 1; min-height: 0; }
+  /* Attendees uses the same displace panel as the system menu. */
+  body.device-phone .modal.group .attendees {
+    position: absolute; top: 0; bottom: 0; left: 0; width: 300px; z-index: 40;
+    flex: none; flex-direction: column; max-height: none; overflow: auto;
+    background: #f2f2f7; border-right: 0; border-bottom: 0;
+    transform: translateX(-100%); transition: transform .28s ease;
+  }
+  body.device-phone .modal.group.phone-attendees-open .attendees { transform: translateX(0); }
+  body.device-phone .modal.group .modal-top,
+  body.device-phone .modal.group .view-tabs,
+  body.device-phone .modal.group .modal-main,
+  body.device-phone .modal.group > .sheet-grabber { transition: transform .28s ease; }
+  body.device-phone .modal.group.phone-attendees-open .modal-top,
+  body.device-phone .modal.group.phone-attendees-open .view-tabs,
+  body.device-phone .modal.group.phone-attendees-open .modal-main,
+  body.device-phone .modal.group.phone-attendees-open > .sheet-grabber { transform: translateX(300px); }
+  body.device-phone .modal.group.phone-attendees-open .phone-attendees-scrim {
+    display: block; position: absolute; top: 0; right: 0; bottom: 0; width: 93px;
+    z-index: 45; background: rgba(0,0,0,.28);
+  }
+  body.device-phone .attendees-head { padding: 28px 16px 10px; border-bottom: 0; border-right: 0; }
+  body.device-phone .attendees-head .count { font-size: 22px; letter-spacing: -0.02em; }
+  body.device-phone .attendee-row {
+    flex: none; min-width: 0; padding: 10px 16px; gap: 10px;
+    border-bottom: 0; border-right: 0;
+  }
+  body.device-phone .attendee-row .meta .name { font-size: 17px; font-weight: 400; }
+  body.device-phone .attendee-row .meta .sub { font-size: 13px; }
+
+  /* Sheets rise from the bottom and use the full width. */
+  body.device-phone .sheet-backdrop { inset: 0; align-items: flex-end; padding: 0; }
+  body.device-phone .sheet { width: 100% !important; max-height: 92%; border-radius: 16px 16px 0 0; }
 </style>
 </head>
 <body>
@@ -756,6 +1026,10 @@
       <button class="tab" data-nav="invisit">In-Visit</button>
     </div>
     <span class="research-tag">All-Actions SPA · No tabs · Voice-first · NBA</span>
+    <div class="device-switch" role="group" aria-label="Device size">
+      <button type="button" class="device-opt active" data-device="ipad">iPad</button>
+      <button type="button" class="device-opt" data-device="iphone">iPhone</button>
+    </div>
     <div class="meta">1194 × 834</div>
   </div>
 
@@ -1667,7 +1941,7 @@
                     <span style="color:var(--focus);cursor:pointer">Actions</span>
                   </div>
                 </div>
-                <span class="chip warn" title="This account isn't eligible for: Oncuvia · Neurova">Product Restrictions</span>
+                <span class="chip warn" title="DEA is missing for this place">DEA missing</span>
               </div>
             </div>
             <div class="form-field">
@@ -1788,14 +2062,14 @@
 
       <!-- 1:1 Modal: Single Page No Side Panel — all actions scrollable -->
       <div class="modal-wrap mode-pane active" data-mode-pane="one">
-        <div class="modal one-on-one">
+        <div class="modal one-on-one agent-collapsed">
           <button type="button" class="sheet-grabber" data-visit-min aria-label="Collapse visit"><span></span></button>
           <header class="modal-top">
             <div class="mt-ident">
               <div class="mt-avatar" aria-hidden="true">PS</div>
               <div class="mt-title-stack">
                 <div class="title">Dr. Priya Shah</div>
-                <div class="sub">Pacific Oncology · <span class="chip">In progress · 00:14</span> <button class="sub-link" data-hcp-peek>View</button></div>
+                <div class="sub"><span class="chip">In progress · 00:14</span> Pacific Oncology</div>
               </div>
             </div>
             <div class="mt-actions">
@@ -1803,36 +2077,40 @@
                 <div class="mode-opt active" data-mode="one">1:1</div>
                 <div class="mode-opt" data-mode="group">Group</div>
               </div>
-              <span class="mt-rule"></span>
-              <button class="btn voice">Dictate</button>
-              <button class="btn" id="get-sig" data-action="consent">Get Signature</button>
-              <span class="mt-rule"></span>
-              <button class="btn ghost" data-nav="visits" title="Save and exit">Save Draft</button>
+              <span class="still-open">Signature still open</span>
+              <button class="btn ghost" data-nav="visits" title="Save and exit">Save</button>
               <button class="btn primary" id="submit-visit">Submit</button>
               <span class="mt-rule"></span>
               <button type="button" class="icon-btn" data-visit-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
             </div>
           </header>
 
-          <div class="view-tabs" data-view-tabs>
-            <button class="vt active" data-view-tab="engagement">Visit Engagement</button>
-            <button class="vt" data-view-tab="content">Intelligent Content</button>
+          <div class="view-tabs visit-tools" data-view-tabs>
+            <button type="button" class="btn ghost visit-done" data-view-tab="engagement" hidden>Done</button>
+            <div class="visit-more-wrap">
+              <button type="button" class="icon-btn visit-more" data-visit-more aria-haspopup="menu" aria-expanded="false" aria-label="More actions" title="More actions"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.2" cy="8" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="12.8" cy="8" r="1.15" fill="currentColor"/></svg></button>
+              <div class="visit-menu" hidden>
+                <button type="button" data-view-tab="content">Intelligent Content</button>
+                <button type="button" data-visit-dictate>Dictate</button>
+              </div>
+            </div>
           </div>
 
           <div class="jump-nav" id="jump-nav">
             <div class="jump-scroll">
               <span class="j active" data-jump="s-info">Visit info</span>
-              <span class="j" data-jump="s-nba">NBA</span>
+              <span class="j" data-jump="s-present">Presentation</span>
               <span class="j" data-jump="s-products">Products</span>
               <span class="j" data-jump="s-samples">Samples</span>
-              <span class="j" data-jump="s-dtp">DTP</span>
               <span class="j" data-jump="s-items">Items</span>
               <span class="j" data-jump="s-inquiry">Inquiry</span>
-              <span class="j" data-jump="s-compliance">Compliance</span>
-              <span class="j" data-jump="s-doc">Document</span>
-              <span class="j" data-jump="s-child">Child visit</span>
-              <span class="j" data-jump="s-remote">Remote</span>
               <span class="j" data-jump="s-close">Close-out</span>
+              <span class="j" data-jump="s-attendees" hidden>Attendees</span>
+              <span class="j" data-jump="s-dtp" hidden>Direct to practitioner</span>
+              <span class="j" data-jump="s-compliance" hidden>Consent</span>
+              <span class="j" data-jump="s-doc" hidden>Document</span>
+              <span class="j" data-jump="s-child" hidden>Child visit</span>
+              <span class="j" data-jump="s-remote" hidden>Remote</span>
             </div>
             <button class="btn primary jump-add" data-action="add" data-add-open="marketing">Add</button>
           </div>
@@ -1840,7 +2118,7 @@
           <section class="modal-main">
             <div class="modal-view active" data-modal-view="engagement">
 
-            <h2 class="section-title" id="s-info">Visit Information</h2>
+            <h2 class="section-title" id="s-info">Visit information</h2>
             <div class="card">
               <div class="row" style="gap:16px">
                 <div class="form-field" style="flex:1">
@@ -1889,26 +2167,33 @@
               </div>
               <div class="list-item"><div class="meta"><div class="name">Confirmed</div>
                 <div class="sub">Visit is confirmed with the account</div></div><span class="chip">Yes</span></div>
-              <div class="list-item"><div class="meta"><div class="name">Product restrictions</div>
-                <div class="sub">This account is not eligible for Oncuvia or Neurova</div></div><span class="chip">Restricted</span></div>
             </div>
 
-            <h2 class="section-title" id="s-nba">Next Best Actions <span class="chip">Agent</span></h2>
+            <h2 class="section-title" id="s-present">Presentation</h2>
             <div class="card">
-              <div class="list-item"><div class="meta">
-                <div class="name">Deliver MA response · renal dosing (Oncuvia)</div>
-                <div class="sub">Talk-track prepared · opens in Intelligent Content</div></div>
-                <button class="btn primary" data-action="talktrack">Open talk-track</button></div>
-              <div class="list-item"><div class="meta">
-                <div class="name">Suggest Neurova sample</div>
-                <div class="sub">PA pathway + patient support one-pager approved</div></div>
-                <button class="btn">Prepare</button></div>
+              <div class="present-context">14 days ago she asked about renal dosing. <span>The medical answer is ready.</span></div>
+              <div class="present-now">
+                <div class="meta">
+                  <div class="name">Oncuvia — Renal dosing talk-track</div>
+                  <div class="sub">Walk through this before asking for a sample or a signature</div>
+                </div>
+                <button class="btn primary" data-action="talktrack">Present</button>
+              </div>
+              <div class="present-alt">
+                <div class="meta">
+                  <div class="name">Oncuvia — Clinical overview</div>
+                  <div class="sub">12 slides · used with her on Sep 23</div>
+                </div>
+                <button class="btn" data-view-tab="content">Open</button>
+              </div>
+              <div class="present-more">
+                <button class="btn ghost" data-view-tab="content">All content</button>
+              </div>
             </div>
-
             </div>
 
             <div class="modal-view" data-modal-view="content">
-            <h2 class="section-title" id="s-content">Intelligent Content <span class="chip">CLM · Agent-ranked</span></h2>
+            <h2 class="section-title" id="s-content">Content library</h2>
             <div class="card" data-content-list>
               <div class="content-toolbar">
                 <div class="ct-filter active" data-cfilter="all">All · 7</div>
@@ -2006,7 +2291,7 @@
             <h2 class="section-title" id="s-attendees" hidden>Attendees</h2>
             <div class="card" id="attendees-card" hidden></div>
 
-            <h2 class="section-title" id="s-products">Product Details</h2>
+            <h2 class="section-title" id="s-products">Products</h2>
             <div class="card">
               <div class="list-item"><div class="meta"><div class="name">Oncuvia · Oncology</div>
                 <div class="sub">Primary combination · 3 messages</div></div><span class="chip">Selected</span></div>
@@ -2050,12 +2335,12 @@
               <button class="btn ghost" data-action="add" data-add-open="disbursements">+ Add another</button>
               <div class="form-field">
                 <label><span style="color:var(--ink)">*</span> Your signature <button type="button" class="icon-btn plain sig-clear" aria-label="Clear signature" title="Clear"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></label>
-                <div class="pad">Please present this screen to Dr. Priya Shah for signature · Sample receipt</div>
-                <div style="font-size:11px;color:var(--muted);margin-top:6px">Required before Submit · Get Signature stays in the header</div>
+                <div class="pad">Hand the iPad to Dr. Shah after she agrees to the sample</div>
+                <button class="btn primary" id="get-sig" type="button" style="margin-top:10px">Get signature</button>
               </div>
             </div>
 
-            <h2 class="section-title" id="s-dtp">Direct to Practitioner</h2>
+            <h2 class="section-title" id="s-dtp" hidden>Direct to Practitioner</h2>
             <div class="card">
               <div class="list-item"><div class="meta"><div class="name">Neurova · 50mg × 30-day</div>
                 <div class="sub">Ship to Pacific Oncology · 4150 Harbor View Dr</div></div><span class="chip">Needs signature</span></div>
@@ -2085,7 +2370,7 @@
               <button class="btn ghost" data-action="add" data-add-open="marketing">+ Add item</button>
             </div>
 
-            <h2 class="section-title" id="s-inquiry">Medical Inquiry</h2>
+            <h2 class="section-title" id="s-inquiry">Inquiry</h2>
             <div class="card">
               <div class="form-field">
                 <label>Product</label>
@@ -2101,7 +2386,7 @@
               </div>
             </div>
 
-            <h2 class="section-title" id="s-compliance">Compliance & Consent</h2>
+            <h2 class="section-title" id="s-compliance" hidden>Consent</h2>
             <div class="card">
               <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-style:italic">Conduct all calls consistent with training direction.</div>
               <div class="list-item"><div class="meta"><div class="name"><span style="color:var(--ink)">*</span> I certify that there are no adverse events recorded in this call.</div>
@@ -2113,7 +2398,7 @@
                 <div style="display:flex;gap:6px;align-items:center"><span class="chip">Valid</span><button class="btn" data-action="consent">Update Consent</button></div></div>
             </div>
 
-            <h2 class="section-title" id="s-doc">Document ID</h2>
+            <h2 class="section-title" id="s-doc" hidden>Document ID</h2>
             <div class="card">
               <div class="form-field" style="border-bottom:0">
                 <label>Document ID</label>
@@ -2122,14 +2407,14 @@
               </div>
             </div>
 
-            <h2 class="section-title" id="s-child">Child Visit</h2>
+            <h2 class="section-title" id="s-child" hidden>Child Visit</h2>
             <div class="card">
               <div class="list-item"><div class="meta"><div class="name">Sample disbursement · Oncuvia</div>
                 <div class="sub">Linked to this call · quantity 2 · lot L45-221</div></div><span class="chip">Open</span></div>
               <button class="btn ghost">+ Add child visit</button>
             </div>
 
-            <h2 class="section-title" id="s-remote">Remote Visit</h2>
+            <h2 class="section-title" id="s-remote" hidden>Remote Visit</h2>
             <div class="card">
               <div class="list-item"><div class="meta"><div class="name">Channel</div>
                 <div class="sub">Face to Face · remote engagement has not started</div></div><span class="chip">In person</span></div>
@@ -2159,25 +2444,18 @@
             <button type="button" class="icon-btn agent-toggle" data-agent-toggle aria-label="Show or hide agent" title="Show or hide agent"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.4 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg></button>
             <div class="inspector-rail" data-agent-toggle title="Expand agent panel">
             </div>
-            <h3>Agent · in-visit</h3>
-            <div class="nba-card" data-action="talktrack" id="nba-talktrack">
-              <div class="label">Next best action</div>
-              <div class="title">Share Oncuvia renal dosing talk-track</div>
-              <div class="body">Based on past context · ready to open.</div>
-              <div class="act">Open</div>
-              <span class="done-chip">Delivered</span>
-            </div>
+            <h3>After this visit</h3>
             <div class="nba-card" data-action="queue" id="nba-queue">
-              <div class="label">Future guidance</div>
-              <div class="title">Next discussion: patient support program</div>
-              <div class="body">High fit for Dr. Shah's panel.</div>
-              <div class="act">Queue for next visit</div>
+              <div class="label">Next visit</div>
+              <div class="title">Patient support program</div>
+              <div class="body">Queue this for Nov 4, after today's presentation.</div>
+              <div class="act">Queue</div>
               <span class="done-chip">Queued for Nov 4</span>
             </div>
             <div class="agent-card" data-action="voice" id="nba-voice">
-              <div class="label">Voice</div>
+              <div class="label">Dictate</div>
               <div class="title">"Log a sample for Oncuvia, qty 2"</div>
-              <div class="body">Dictate structured data directly.</div>
+              <div class="body">Say it once she agrees. It lands on the sample.</div>
               <span class="done-chip">Logged</span>
             </div>
             <div class="agent-input">Dictate or ask…</div>
@@ -2223,7 +2501,7 @@
 
       <!-- Group Modal: Side-panel attendee navigator -->
       <div class="modal-wrap mode-pane" data-mode-pane="group">
-        <div class="modal group">
+        <div class="modal group agent-collapsed">
           <button type="button" class="sheet-grabber" data-visit-min aria-label="Collapse visit"><span></span></button>
           <header class="modal-top">
             <div class="mt-title-stack">
@@ -2236,23 +2514,30 @@
                 <div class="mode-opt active" data-mode="group">Group</div>
               </div>
               <span class="mt-rule"></span>
-              <button class="btn voice">Dictate</button>
               <button class="btn" id="get-sig-group" data-action="consent">Get Signature</button>
               <span class="mt-rule"></span>
               <button class="btn ghost" data-nav="visits" title="Save and exit">Save Draft</button>
               <button class="btn primary" id="submit-visit-group">Submit</button>
+              <button type="button" class="icon-btn phone-attendees" data-phone-attendees aria-label="Attendees" title="Attendees"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="5.5" cy="5" r="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.8 12.6c.5-2 1.8-3 3.7-3s3.2 1 3.7 3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="11.2" cy="5.4" r="1.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10.2 9.6c1.1-.2 2.2.2 2.9 1.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
               <span class="mt-rule"></span>
               <button type="button" class="icon-btn" data-visit-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
             </div>
           </header>
 
-          <div class="view-tabs" data-view-tabs>
-            <button class="vt active" data-view-tab="engagement">Visit Engagement</button>
-            <button class="vt" data-view-tab="content">Intelligent Content</button>
+          <div class="view-tabs visit-tools" data-view-tabs>
+            <button type="button" class="btn ghost visit-done" data-view-tab="engagement" hidden>Done</button>
+            <div class="visit-more-wrap">
+              <button type="button" class="icon-btn visit-more" data-visit-more aria-haspopup="menu" aria-expanded="false" aria-label="More actions" title="More actions"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.2" cy="8" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="12.8" cy="8" r="1.15" fill="currentColor"/></svg></button>
+              <div class="visit-menu" hidden>
+                <button type="button" data-view-tab="content">Intelligent Content</button>
+                <button type="button" data-visit-dictate>Dictate</button>
+              </div>
+            </div>
           </div>
 
           <aside class="attendees">
             <div class="attendees-head">
+              <button type="button" class="icon-btn attendees-toggle" data-attendees-toggle aria-label="Collapse attendees" title="Collapse attendees"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.6 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg></button>
               <div class="count">18 attendees</div>
               <div class="progress">12 signed · 4 pending · 2 declined</div>
             </div>
@@ -2293,6 +2578,7 @@
             <div class="attendee-add">+ Add attendee</div>
             <button class="btn ghost" style="margin:12px 10px 0;width:calc(100% - 20px)">Schedule Follow-up Visit</button>
           </aside>
+          <div class="phone-attendees-scrim" data-phone-attendees-scrim></div>
 
           <section class="modal-main">
             <div class="modal-view active" data-modal-view="engagement">
@@ -2301,9 +2587,9 @@
                 <h1 class="page-title">Dr. Priya Shah · active</h1>
                 <p class="page-sub">Medical Oncology · Pacific Oncology · signed </p>
               </div>
-              <div class="page-actions">
+              <div class="page-actions attendee-pager">
                 <button class="btn ghost">Prev</button>
-                <button class="btn primary">Next attendee</button>
+                <button class="btn primary">Next</button>
               </div>
             </div>
 
@@ -2379,7 +2665,14 @@
             </div>
             <button type="button" class="icon-btn close" data-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
           </header>
+          <div class="add-search">
+            <label class="search">
+              <span class="glyph" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="4.6" stroke="currentColor" stroke-width="1.6"/><path d="M12.4 12.4 16 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+              <input id="add-search" type="search" placeholder="Search" autocomplete="off" enterkeyhint="search">
+            </label>
+          </div>
           <section class="sheet-body add-catalog">
+            <p class="add-empty" hidden>No matches</p>
             <div class="add-group" data-add-group="attendees">
               <button type="button" class="add-group-h"><span class="chev" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12"><path d="M4.2 2.2L8.2 6 4.2 9.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Attendees</button>
               <div class="add-group-body">
@@ -2630,6 +2923,48 @@
       </div>
     </div>
 
+    <div class="ipad screen" id="screen-tasks">
+      <div class="statusbar"><span class="left">9:41</span><span></span></div>
+      <aside class="sidebar">
+        <div class="search"><span class="glyph" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="4.6" stroke="currentColor" stroke-width="1.6"/><path d="M12.4 12.4 16 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>Search</div>
+        <nav class="side-nav" aria-label="Primary"></nav>
+      </aside>
+      <main class="main">
+        <header class="page-header">
+          <div>
+            <h1 class="page-title">Tasks</h1>
+            <p class="page-sub">4 open · due today</p>
+          </div>
+        </header>
+        <div class="list-item"><div class="meta"><div class="name">Send renal-dosing response to Dr. Shah</div><div class="sub">MA replied overnight · ready to share pre-visit</div></div></div>
+        <div class="list-item"><div class="meta"><div class="name">Capture sample signature</div><div class="sub">Dr. Priya Shah · Oncuvia 25mg</div></div></div>
+        <div class="list-item"><div class="meta"><div class="name">Reorder today's route</div><div class="sub">Save 18 min · Shah, Haddad, Ruiz</div></div></div>
+        <div class="list-item"><div class="meta"><div class="name">Renew consent</div><div class="sub">Dr. Chen Wu · due on tomorrow's visit</div></div></div>
+      </main>
+      <aside class="inspector">
+        <h3>Agent</h3>
+        <div class="agent-card"><div class="label">Tasks</div><div class="title">Four things before the first call</div><div class="body">The dosing reply is the one that changes today's visit.</div></div>
+        <div class="agent-input">Ask about your tasks…</div>
+      </aside>
+    </div>
+
+    <div class="ipad screen" id="screen-stub">
+      <div class="statusbar"><span class="left">9:41</span><span></span></div>
+      <aside class="sidebar">
+        <div class="search"><span class="glyph" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="4.6" stroke="currentColor" stroke-width="1.6"/><path d="M12.4 12.4 16 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>Search</div>
+        <nav class="side-nav" aria-label="Primary"></nav>
+      </aside>
+      <main class="main">
+        <header class="page-header">
+          <div>
+            <h1 class="page-title" id="stub-title">Destination</h1>
+            <p class="page-sub" id="stub-sub">This destination is in the menu. It is not built out in this prototype.</p>
+          </div>
+        </header>
+      </main>
+      <aside class="inspector"></aside>
+    </div>
+
     <div class="visit-dock" id="visit-dock">
       <div>
         <div class="who">In visit · Dr. Priya Shah</div>
@@ -2700,8 +3035,8 @@
     if (!one) return;
     one.classList.remove('is-content');
     one.querySelector('.hcp-peek')?.classList.remove('open');
-    one.querySelectorAll('[data-view-tabs] .vt').forEach(t =>
-      t.classList.toggle('active', t.dataset.viewTab === 'engagement'));
+    one.querySelectorAll('.visit-done').forEach(b => { b.hidden = true; });
+    one.querySelectorAll('.visit-menu').forEach(m => { m.hidden = true; });
     one.querySelectorAll('[data-modal-view]').forEach(v =>
       v.classList.toggle('active', v.dataset.modalView === 'engagement'));
   }
@@ -2721,6 +3056,10 @@
     // Reset in-visit scroll + close any open sheet when leaving the modal
     document.querySelectorAll('.modal-main').forEach(m => m.scrollTop = 0);
     document.querySelectorAll('.sheet-backdrop.open').forEach(s => s.classList.remove('open'));
+    document.body.classList.remove('phone-menu-open', 'phone-agent-open');
+    closeVisitMenus();
+    document.querySelectorAll('.modal.group').forEach(m => m.classList.remove('phone-attendees-open'));
+    syncPhoneChrome();
     syncDock();
   }
 
@@ -2799,11 +3138,46 @@
         sheet.classList.add('open');
         if (trigger.dataset.action === 'add') {
           const which = trigger.dataset.addOpen || 'marketing';
+          const search = document.getElementById('add-search');
+          if (search) search.value = '';
+          addOpenSnapshot = null;
+          filterAddCatalog('');
           sheet.querySelectorAll('.add-group').forEach(g =>
             g.classList.toggle('open', g.dataset.addGroup === which));
         }
       }
     }
+  });
+
+  let addOpenSnapshot = null;
+  function filterAddCatalog(query) {
+    const sheet = document.getElementById('sheet-add');
+    if (!sheet) return;
+    const q = query.trim().toLowerCase();
+    let matches = 0;
+    sheet.querySelectorAll('.add-group').forEach(g => {
+      let any = false;
+      g.querySelectorAll('.add-item').forEach(item => {
+        const text = ((item.dataset.addName || '') + ' ' + (item.dataset.addSub || '')).toLowerCase();
+        const show = !q || text.includes(q);
+        item.hidden = !show;
+        if (show) any = true;
+      });
+      g.hidden = q ? !any : false;
+      if (q && any) g.classList.add('open');
+      else if (!q && addOpenSnapshot) g.classList.toggle('open', addOpenSnapshot.has(g.dataset.addGroup));
+      if (any && q) matches += 1;
+    });
+    const empty = sheet.querySelector('.add-empty');
+    if (empty) empty.hidden = !(q && matches === 0);
+  }
+  document.getElementById('add-search')?.addEventListener('input', e => {
+    const q = e.target.value.trim();
+    if (q && !addOpenSnapshot) {
+      addOpenSnapshot = new Set([...document.querySelectorAll('#sheet-add .add-group.open')].map(g => g.dataset.addGroup));
+    }
+    filterAddCatalog(q);
+    if (!q) addOpenSnapshot = null;
   });
 
   document.getElementById('sheet-add')?.addEventListener('click', e => {
@@ -2821,6 +3195,8 @@
     if (!section || !card) return;
     section.hidden = false;
     card.hidden = false;
+    const chip = document.querySelector('#jump-nav .j[data-jump="' + section.id + '"]');
+    if (chip) chip.hidden = false;
     const row = document.createElement('div');
     row.className = 'list-item';
     row.dataset.addedId = item.dataset.addId;
@@ -2852,6 +3228,9 @@
       const screen = group.closest('.screen');
       screen.querySelectorAll('.mode-pane').forEach(p =>
         p.classList.toggle('active', p.dataset.modePane === mode));
+      if (groupName === 'invisit-mode' && mode !== 'group') {
+        document.querySelectorAll('.modal.group').forEach(m => m.classList.remove('phone-attendees-open'));
+      }
       // Update crumbs / titles for Visit screen
       if (groupName === 'visit-mode') {
         const crumb = document.getElementById('visit-crumb-type');
@@ -2905,11 +3284,12 @@
       const tab = e.target.closest('[data-view-tab]');
       if (!tab) return;
       const name = tab.dataset.viewTab;
-      modal.querySelectorAll('[data-view-tabs] .vt').forEach(t =>
-        t.classList.toggle('active', t.dataset.viewTab === name));
       modal.querySelectorAll('[data-modal-view]').forEach(v =>
         v.classList.toggle('active', v.dataset.modalView === name));
       modal.classList.toggle('is-content', name === 'content');
+      modal.querySelectorAll('.visit-done').forEach(b => { b.hidden = name !== 'content'; });
+      modal.querySelectorAll('.visit-menu').forEach(m => { m.hidden = true; });
+      modal.querySelectorAll('[data-visit-more]').forEach(b => b.setAttribute('aria-expanded', 'false'));
       const main = modal.querySelector('.modal-main');
       if (main) main.scrollTop = 0;
     });
@@ -2940,7 +3320,9 @@
       const y = main.scrollTop + 16;
       let currentIdx = 0;
       for (let i = 0; i < sections.length; i++) {
-        if (sections[i].target.offsetTop <= y) currentIdx = i;
+        const target = sections[i].target;
+        if (sections[i].j.hidden || target.hidden || target.closest('[hidden]')) continue;
+        if (target.offsetTop <= y) currentIdx = i;
       }
       sections.forEach((s, i) => s.j.classList.toggle('active', i === currentIdx));
     });
@@ -2952,6 +3334,9 @@
     setTimeout(() => go('today'), 400);
   }
   document.getElementById('submit-visit')?.addEventListener('click', submitVisit);
+  document.getElementById('get-sig')?.addEventListener('click', () => {
+    showToast('Hand the iPad to Dr. Shah for the sample signature');
+  });
   document.getElementById('submit-visit-group')?.addEventListener('click', submitVisit);
 
   // Side nav taxonomy — main tabs disclose the full app tab set.
@@ -2993,7 +3378,7 @@
       { id: 'downtimes', label: 'Territory User Downtimes' }
     ]},
     { id: 'work', label: 'Work', icon: 'work', children: [
-      { id: 'tasks', label: 'Tasks', badge: '4' },
+      { id: 'tasks', label: 'Tasks', badge: '4', screen: 'tasks' },
       { id: 'quotes', label: 'Quotes' },
       { id: 'reports', label: 'Reports' },
       { id: 'alerts', label: 'App Alerts' }
@@ -3018,7 +3403,8 @@
     'screen-hcp': 'providers',
     'screen-visits': 'visits',
     'screen-visit': 'visits',
-    'screen-invisit': 'visits'
+    'screen-invisit': 'visits',
+    'screen-tasks': 'tasks'
   };
   const openNavGroups = new Set();
   function navGlyph(name) {
@@ -3086,6 +3472,14 @@
     const stub = e.target.closest('[data-nav-stub]');
     if (!stub) return;
     e.stopPropagation();
+    if (document.body.classList.contains('device-phone')) {
+      const title = document.getElementById('stub-title');
+      const sub = document.getElementById('stub-sub');
+      if (title) title.textContent = stub.dataset.navStub;
+      if (sub) sub.textContent = 'This destination is in the menu. It is not built out in this prototype.';
+      go('stub');
+      return;
+    }
     showToast(stub.dataset.navStub + ' · not in this prototype');
   });
 
@@ -3116,6 +3510,18 @@
     });
   });
 
+  document.body.addEventListener('click', e => {
+    const toggle = e.target.closest('[data-attendees-toggle]');
+    if (!toggle) return;
+    e.stopPropagation();
+    const modal = toggle.closest('.modal.group');
+    if (!modal) return;
+    const collapsed = modal.classList.toggle('attendees-collapsed');
+    toggle.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+    toggle.setAttribute('aria-label', collapsed ? 'Expand attendees' : 'Collapse attendees');
+    toggle.title = collapsed ? 'Expand attendees' : 'Collapse attendees';
+  });
+
   // Agent panel collapse/expand — toggle persists across all iPad screens;
   // modal agent panels toggle only their own modal.
   document.body.addEventListener('click', e => {
@@ -3143,6 +3549,177 @@
       const screen = group.closest('.screen') || group.parentElement;
       screen.querySelectorAll('.view-pane').forEach(p =>
         p.classList.toggle('active', p.dataset.viewPane === view));
+    });
+  });
+
+  const PHONE_COPY = {
+    'screen-today': { title: 'Today', tab: 'today' },
+    'screen-accounts': { title: 'Accounts', tab: 'accounts' },
+    'screen-hcp': { title: 'Dr. Priya Shah', tab: 'accounts', back: 'accounts' },
+    'screen-visits': { title: 'Visits', tab: 'visits' },
+    'screen-visit': { title: 'Dr. Priya Shah', tab: 'visits', back: 'visits' },
+    'screen-invisit': { title: 'Visit', tab: '' },
+    'screen-tasks': { title: 'Tasks', tab: 'tasks' },
+    'screen-stub': { title: '', tab: '' }
+  };
+  const phoneMenuSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M5.6 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg>';
+  const phoneBackSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5 5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const phoneTabs = [
+    { id: 'today', label: 'Today', nav: 'today', icon: 'home' },
+    { id: 'visits', label: 'Visits', nav: 'visits', icon: 'visits', badge: '1' },
+    { id: 'accounts', label: 'Accounts', nav: 'accounts', icon: 'accounts' },
+    { id: 'tasks', label: 'Tasks', nav: 'tasks', icon: 'work', badge: '4' }
+  ];
+  function syncPhoneChrome() {
+    const screen = document.querySelector('.screen.active');
+    const copy = PHONE_COPY[screen?.id] || { title: '', tab: '' };
+    document.querySelectorAll('.phone-tab').forEach(tab => {
+      tab.classList.toggle('active', !!copy.tab && tab.dataset.phoneTab === copy.tab);
+    });
+  }
+  document.querySelectorAll('.ipad').forEach(frame => {
+    const copy = PHONE_COPY[frame.id] || { title: '', tab: '' };
+    const bar = document.createElement('div');
+    bar.className = 'phone-bar';
+    const lead = document.createElement('button');
+    lead.type = 'button';
+    lead.className = 'icon-btn phone-lead';
+    if (copy.back) {
+      lead.dataset.nav = copy.back;
+      lead.setAttribute('aria-label', 'Back');
+      lead.innerHTML = phoneBackSvg;
+    } else {
+      lead.dataset.phoneMenu = '';
+      lead.setAttribute('aria-label', 'Show menu');
+      lead.innerHTML = phoneMenuSvg;
+    }
+    const title = document.createElement('div');
+    title.className = 'phone-title';
+    title.textContent = '';
+    const agent = document.createElement('button');
+    agent.type = 'button';
+    agent.className = 'icon-btn phone-agent';
+    agent.dataset.phoneAgent = '';
+    agent.setAttribute('aria-label', 'Agent');
+    agent.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.4 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg>';
+    bar.append(lead, title, agent);
+    const tabs = document.createElement('nav');
+    tabs.className = 'phone-tabs';
+    tabs.setAttribute('aria-label', 'Sections');
+    phoneTabs.forEach(item => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'phone-tab' + (item.id === copy.tab ? ' active' : '');
+      btn.dataset.phoneTab = item.id;
+      btn.dataset.nav = item.nav;
+      btn.innerHTML = navGlyph(item.icon);
+      const label = document.createElement('span');
+      label.textContent = item.label;
+      btn.appendChild(label);
+      if (item.badge) {
+        const badge = document.createElement('span');
+        badge.className = 'phone-badge';
+        badge.textContent = item.badge;
+        btn.appendChild(badge);
+      }
+      tabs.appendChild(btn);
+    });
+    const scrim = document.createElement('div');
+    scrim.className = 'phone-scrim';
+    scrim.dataset.phoneScrim = '';
+    frame.append(bar, tabs, scrim);
+  });
+  document.querySelectorAll('[data-view-tabs]').forEach(tabs => {
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'btn primary phone-add';
+    add.dataset.action = 'add';
+    add.dataset.addOpen = 'marketing';
+    add.textContent = 'Add';
+    const more = tabs.querySelector('.visit-more-wrap');
+    if (more) tabs.insertBefore(add, more);
+    else tabs.appendChild(add);
+  });
+  function closeVisitMenus() {
+    document.querySelectorAll('.visit-menu').forEach(m => { m.hidden = true; });
+    document.querySelectorAll('[data-visit-more]').forEach(b => b.setAttribute('aria-expanded', 'false'));
+  }
+  document.body.addEventListener('click', e => {
+    const more = e.target.closest('[data-visit-more]');
+    if (more) {
+      e.stopPropagation();
+      const menu = more.parentElement.querySelector('.visit-menu');
+      const willOpen = menu.hasAttribute('hidden');
+      closeVisitMenus();
+      if (willOpen) {
+        menu.hidden = false;
+        more.setAttribute('aria-expanded', 'true');
+      }
+      return;
+    }
+    if (e.target.closest('[data-visit-dictate]')) {
+      e.stopPropagation();
+      closeVisitMenus();
+      showToast('Dictate');
+      return;
+    }
+    if (!e.target.closest('.visit-menu')) closeVisitMenus();
+  });
+  document.querySelectorAll('.modal-top .mt-actions').forEach(actions => {
+    if (actions.querySelector('[data-phone-agent]')) return;
+    const agent = document.createElement('button');
+    agent.type = 'button';
+    agent.className = 'icon-btn phone-agent';
+    agent.dataset.phoneAgent = '';
+    agent.setAttribute('aria-label', 'Agent');
+    agent.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.4 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg>';
+    actions.appendChild(agent);
+  });
+  document.body.addEventListener('click', e => {
+    if (e.target.closest('[data-phone-menu]')) {
+      e.stopPropagation();
+      document.body.classList.toggle('phone-menu-open');
+      document.body.classList.remove('phone-agent-open');
+      return;
+    }
+    if (e.target.closest('[data-phone-scrim]')) {
+      e.stopPropagation();
+      document.body.classList.remove('phone-menu-open');
+      return;
+    }
+    if (e.target.closest('[data-phone-agent]')) {
+      e.stopPropagation();
+      document.body.classList.toggle('phone-agent-open');
+      document.body.classList.remove('phone-menu-open');
+      document.querySelectorAll('.modal.group').forEach(m => m.classList.remove('phone-attendees-open'));
+      return;
+    }
+    if (e.target.closest('[data-phone-attendees]')) {
+      e.stopPropagation();
+      const modal = e.target.closest('.modal.group');
+      if (modal) modal.classList.toggle('phone-attendees-open');
+      document.body.classList.remove('phone-agent-open', 'phone-menu-open');
+      return;
+    }
+    if (e.target.closest('[data-phone-attendees-scrim]')) {
+      e.stopPropagation();
+      e.target.closest('.modal')?.classList.remove('phone-attendees-open');
+      return;
+    }
+    if (e.target.closest('.modal.group.phone-attendees-open .attendee-row')) {
+      e.target.closest('.modal').classList.remove('phone-attendees-open');
+    }
+  });
+  document.querySelectorAll('[data-device]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const phone = btn.dataset.device === 'iphone';
+      document.body.classList.toggle('device-phone', phone);
+      document.body.classList.remove('phone-menu-open', 'phone-agent-open', 'sidebar-collapsed');
+      document.querySelectorAll('.modal.group').forEach(m => m.classList.remove('phone-attendees-open'));
+      document.querySelectorAll('[data-device]').forEach(b => b.classList.toggle('active', b === btn));
+      const meta = document.querySelector('.toolbar .meta');
+      if (meta) meta.textContent = phone ? '393 × 852' : '1194 × 834';
+      syncPhoneChrome();
     });
   });
 
