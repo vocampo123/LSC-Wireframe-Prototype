@@ -1,0 +1,2681 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Rep Visit — IA Clickable Prototype v2 (research-informed)</title>
+<style>
+  :root {
+    /* iOS / HIG neutral palette — single near-black accent, monochrome chips */
+    --bg: #f5f5f7;              /* iPad canvas */
+    --frame: #ffffff;
+    --ink: #1d1d1f;             /* SF-ink */
+    --muted: #86868b;            /* iOS secondary label */
+    --subtle: #6e6e73;           /* iOS tertiary */
+    --line: #e5e5ea;             /* iOS separator */
+    --line-soft: #ececf0;
+    --fill: #f2f2f7;             /* iOS system fill */
+    --fill-2: #e8e8ed;
+    --sidebar: #ffffff;
+    --highlight: #f2f2f7;
+    --rail: #ffffff;
+    --pill: #f2f2f7;
+    --pill-active: #1d1d1f;
+    --pill-active-ink: #ffffff;
+    --focus: #1d1d1f;            /* black primary — not blue */
+    --accent-ink: #1d1d1f;
+    --nba: #f2f2f7;
+    --nba-ink: #1d1d1f;
+    --voice: #f2f2f7;
+    --voice-ink: #1d1d1f;
+    --good: #1d1d1f;
+    --warn: #6e6e73;
+    --bad: #3a3a3c;
+    --shadow-card: 0 1px 2px rgba(0,0,0,.04);
+    --radius-card: 8px;
+    --radius-btn: 6px;
+    --radius-chip: 4px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #e9ebee; color: var(--ink);
+    font: 14px/1.45 -apple-system, "SF Pro Text", "SF Pro Display", Inter, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.003em; }
+  button { font: inherit; }
+
+  .toolbar {
+    position: sticky; top: 0; z-index: 10; background: #1a1a1a; color: #fff;
+    padding: 10px 16px; display: flex; gap: 8px; align-items: center;
+  }
+  .toolbar h1 { font-size: 13px; margin: 0 12px 0 0; font-weight: 600; letter-spacing: .02em; }
+  .toolbar .meta { font-size: 11px; color: #a1a1a6; margin-left: auto; }
+  .tabs { display: flex; gap: 4px; }
+  .tab { background: #2b2b2b; color: #e5e7eb; border: 0; padding: 6px 10px;
+    border-radius: 6px; cursor: pointer; }
+  .tab.active { background: #fff; color: #111; }
+  .research-tag { background: var(--voice); color: var(--voice-ink);
+    padding: 3px 8px; border-radius: 999px; font-size: 11px; }
+
+  .stage { padding: 24px; display: flex; justify-content: center; }
+  .ipad {
+    width: 1194px; height: 834px;
+    background: var(--frame); border-radius: 22px; overflow: hidden;
+    box-shadow: 0 20px 48px rgba(0,0,0,.08), 0 2px 8px rgba(0,0,0,.04);
+    display: grid;
+    grid-template-columns: 240px 1fr 300px;
+    grid-template-rows: 36px 1fr;
+    position: relative;
+  }
+
+  .statusbar {
+    grid-column: 1 / -1; grid-row: 1;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; background: #fff; border-bottom: 1px solid var(--line-soft);
+    font-size: 11.5px; color: var(--muted); letter-spacing: -0.01em;
+  }
+  .statusbar .left { font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+  .crumb { color: var(--muted); font-weight: 400; cursor: pointer; letter-spacing: -0.01em; }
+  .crumb:hover { color: var(--ink); }
+  .crumb-sep { color: #c7cad1; }
+  .mic-badge { background: var(--voice); color: var(--voice-ink); padding: 2px 8px;
+    border-radius: 999px; font-size: 11px; display: inline-flex; align-items: center; gap: 4px; }
+
+  /* Sidebar: white panel, icon-forward nav, iOS style */
+  .sidebar { grid-column: 1; grid-row: 2;
+    background: var(--sidebar); border-right: 1px solid var(--line);
+    padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; overflow: auto; }
+  .brand { font-weight: 600; font-size: 15px; padding: 4px 12px 2px; letter-spacing: -0.01em; }
+  .brand-sub { color: var(--muted); font-size: 12px; padding: 0 12px 16px; letter-spacing: -0.01em; }
+  .search { margin: 4px 4px 10px; height: 36px; border: 0; border-radius: 10px;
+    background: var(--fill); display: flex; align-items: center; padding: 0 12px;
+    color: var(--muted); font-size: 13px; gap: 8px; cursor: text; letter-spacing: -0.01em; }
+  .search .mic { color: var(--ink); font-weight: 500; }
+  .nav-item { padding: 8px 12px; border-radius: 6px; display: flex; align-items: center; gap: 8px;
+    color: var(--ink); cursor: pointer; font-size: 14px; letter-spacing: -0.01em; }
+  .nav-item:hover { background: var(--fill); }
+  .nav-item .dot { width: 18px; height: 18px; background: transparent; color: var(--subtle);
+    border-radius: 4px; flex: 0 0 18px; display: inline-flex; align-items: center; justify-content: center;
+    font-size: 15px; }
+  .nav-item.active { background: var(--fill); color: var(--ink); font-weight: 500; }
+  .nav-item.active:hover { background: var(--fill); }
+  .nav-item.active .dot { color: var(--ink); }
+  .nav-item .badge { margin-left: auto; background: transparent; color: var(--muted);
+    padding: 0; font-size: 12px; font-weight: 500; }
+  .nav-sub { padding: 0 12px 8px; color: var(--muted); font-size: 12px; }
+  .sidebar-foot { margin-top: auto; padding: 10px 8px 2px; display: flex; align-items: center; gap: 10px;
+    border-top: 1px solid var(--line-soft); }
+  .sidebar-foot .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--fill-2);
+    color: var(--ink); display: inline-flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; letter-spacing: 0; flex: 0 0 32px; }
+  .sidebar-foot .who { font-size: 13px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.2; }
+  .sidebar-foot .where { font-size: 11.5px; color: var(--muted); letter-spacing: -0.01em; }
+  .sidebar-foot .more { margin-left: auto; color: var(--muted); cursor: pointer; }
+
+  /* Main content */
+  .main { grid-column: 2; grid-row: 2; padding: 24px; overflow: auto; position: relative;
+    background: var(--bg); }
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  .page-header .page-title { font-size: 22px; font-weight: 600; margin: 0 0 4px; letter-spacing: -0.02em; line-height: 1.2; }
+  .page-header .page-sub { color: var(--muted); margin: 0; font-size: 13px; letter-spacing: -0.01em; }
+  .page-actions { display: flex; gap: 10px; flex-shrink: 0; align-items: center; }
+
+  /* Inspector (right rail): white panel, iOS pills, no cyan NBAs */
+  .inspector { grid-column: 3; grid-row: 2;
+    background: var(--rail); border-left: 1px solid var(--line);
+    padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow: auto; }
+  .inspector h3, .modal-agent h3 { margin: 0 0 4px; font-size: 16px; font-weight: 600; letter-spacing: -0.015em;
+    text-transform: none; color: var(--ink); padding-right: 52px; }
+  .agent-card { background: #fff; border: 1px solid var(--line-soft); border-radius: 14px;
+    padding: 14px; display: flex; flex-direction: column; gap: 8px; cursor: pointer;
+    box-shadow: var(--shadow-card); transition: border-color .12s ease; }
+  .agent-card:hover { border-color: var(--line); }
+  .agent-card .label { font-size: 11.5px; color: var(--muted); text-transform: none;
+    letter-spacing: -0.01em; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+    .agent-card .title { font-weight: 600; font-size: 14px; letter-spacing: -0.015em; }
+  .agent-card .body { color: var(--muted); font-size: 12.5px; letter-spacing: -0.01em; }
+  .nba-card { background: #fff; border: 1px solid var(--line-soft); border-radius: 14px; padding: 14px;
+    display: flex; flex-direction: column; gap: 8px; cursor: pointer; box-shadow: var(--shadow-card);
+    transition: border-color .12s ease; }
+  .nba-card:hover { border-color: var(--line); }
+  .nba-card .label { font-size: 11.5px; color: var(--muted); text-transform: none;
+    letter-spacing: -0.01em; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+    .nba-card .title { font-weight: 600; font-size: 14px; letter-spacing: -0.015em; color: var(--ink); }
+  .nba-card .body { color: var(--muted); font-size: 12.5px; letter-spacing: -0.01em; }
+  .nba-card .act { align-self: flex-start; background: var(--ink); color: #fff;
+    padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 500; margin-top: 4px;
+    letter-spacing: -0.01em; }
+  .agent-input { margin-top: auto; background: var(--fill); border: 0; border-radius: 12px;
+    padding: 12px 14px; color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 10px;
+    letter-spacing: -0.01em; }
+  .agent-input .mic { background: var(--ink); color: #fff;
+    width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 999px; font-size: 11px; }
+
+  /* Record pattern — stacked cards, NO tabs */
+  .card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius-card);
+    padding: 16px; box-shadow: none; }
+  .card + .card { margin-top: 16px; }
+  .card h2 { margin: 0 0 8px; font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; letter-spacing: -0.01em; }
+  .card h2 .chip { font-weight: 500; }
+  .card .expand { margin-left: auto; color: var(--muted); font-size: 12px; cursor: pointer; }
+  .row { display: flex; gap: 16px; }
+  .row > * { flex: 1; }
+
+  /* Highlights with Last Touch promoted — iOS pattern: subtle gray cells, no colored borders */
+  .highlights { background: transparent; border: 0; border-radius: 0;
+    padding: 0; display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 8px; }
+  .highlights .cell { background: var(--fill); border-radius: 12px; padding: 12px 14px; }
+  .highlights .cell .k { font-size: 11.5px; text-transform: none; color: var(--muted);
+    letter-spacing: -0.01em; font-weight: 500; }
+  .highlights .cell .v { font-weight: 600; margin-top: 4px; letter-spacing: -0.015em; font-size: 15px; }
+  .highlights .cell .vsub { color: var(--muted); font-size: 12px; margin-top: 2px; letter-spacing: -0.01em; }
+  .highlights .cell.last-touch { background: #fff; border: 1px solid var(--line-soft);
+    border-radius: 12px; padding: 14px; box-shadow: var(--shadow-card); }
+  .highlights .cell.last-touch .k { color: var(--muted); display: flex; align-items: center; gap: 6px; }
+
+  .list-item { display: flex; align-items: center; gap: 12px; padding: 10px 0;
+    border-bottom: 1px solid var(--line); }
+  .list-item:last-child { border-bottom: 0; }
+  .list-item.clickable { cursor: pointer; margin: 0 -8px; padding: 12px 8px; border-radius: 8px; }
+  .list-item.clickable:hover { background: var(--fill); }
+  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--fill);
+    color: var(--subtle); display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; flex: 0 0 36px; letter-spacing: -0.01em; }
+  .list-item .meta { flex: 1; min-width: 0; }
+  .list-item .meta .name { font-weight: 600; letter-spacing: -0.015em; }
+  .list-item .meta .sub { color: var(--muted); font-size: 12.5px; letter-spacing: -0.01em; margin-top: 2px; }
+  .time { color: var(--muted); font-size: 12.5px; letter-spacing: -0.01em; }
+  /* Chip: monochrome by default. Semantic variants render a dot indicator — no colored fills. */
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px;
+    background: var(--fill); border-radius: var(--radius-chip);
+    font-size: 11.5px; color: var(--subtle); font-weight: 500; letter-spacing: -0.01em; }
+  .chip.warn, .chip.good, .chip.bad, .chip.info { background: var(--fill); color: var(--subtle); }
+    .chip.voice { background: var(--fill); color: var(--ink); }
+  .chip.group { background: var(--fill); color: var(--subtle); }
+
+  /* iOS pill buttons: primary = ink-black, secondary = subtle gray fill, ghost = transparent */
+  .btn { padding: 8px 16px; border-radius: var(--radius-btn); font-size: 13px; font-weight: 500;
+    border: 0; background: var(--fill); color: var(--ink); cursor: pointer; letter-spacing: -0.01em;
+    white-space: nowrap; line-height: 1.2;
+    transition: background .12s ease, opacity .12s ease; }
+  .btn:hover { background: var(--fill-2); }
+  .btn.primary { background: var(--ink); color: #fff; }
+  .btn.primary:hover { background: #000; }
+  .btn.ghost { background: transparent; color: var(--subtle); }
+  .btn.ghost:hover { color: var(--ink); background: var(--fill); }
+  .btn.voice { background: var(--fill); color: var(--ink); font-weight: 500; }
+
+  /* Filters & browse */
+  .filters { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 14px; align-items: center; }
+  .filter { padding: 6px 12px; border-radius: 999px; background: var(--fill); font-size: 12px; cursor: pointer; border: 1px solid transparent; }
+  .filter:hover { background: var(--fill-2); }
+  .filter.active { background: var(--pill-active); color: var(--pill-active-ink); border-color: var(--pill-active); }
+
+  .section-header { display: flex; align-items: baseline; justify-content: space-between; margin: 24px 0 8px; }
+  .section-header h2 { margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .section-header .link { font-size: 12px; color: var(--focus); cursor: pointer; }
+
+  .account-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .account-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px;
+    cursor: pointer; display: flex; flex-direction: column; gap: 8px; }
+  .account-card:hover { border-color: var(--ink); }
+  .account-head { display: flex; gap: 10px; align-items: center; }
+  .account-head .name { font-weight: 600; font-size: 13px; }
+  .account-head .sub { color: var(--muted); font-size: 11px; }
+  .account-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+  .last-touch-line { font-size: 12px; color: var(--subtle); background: var(--fill); padding: 8px;
+    border-radius: 4px; }
+
+  .visit-group { margin-bottom: 16px; }
+  .visit-group h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .visit-row { background: #fff; border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 14px; display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 6px; }
+  .visit-row:hover { border-color: var(--focus); }
+  .visit-row .vtime { font-weight: 600; width: 70px; flex-shrink: 0; }
+  .visit-row .vmeta { flex: 1; }
+  .visit-row .vmeta .name { font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .visit-row .vmeta .sub { color: var(--muted); font-size: 12px; }
+
+  /* Mode toggle (1:1 / Group) */
+  .mode-toggle { display: inline-flex; background: var(--fill); padding: 3px; border-radius: 999px; gap: 2px; }
+  .mode-opt { padding: 5px 14px; border-radius: 999px; font-size: 12px; cursor: pointer; color: var(--muted); }
+  .mode-opt.active { background: #fff; color: var(--ink); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+
+  /* In-visit modal — All Actions SPA, flat */
+  .modal-wrap { position: absolute; inset: 36px 0 0 0; background: rgba(0,0,0,.42);
+    display: flex; align-items: stretch; justify-content: stretch; padding: 16px; z-index: 5; }
+  .modal { flex: 1; min-height: 0; background: #fff; border-radius: 14px; overflow: hidden; display: grid; }
+  .modal.one-on-one { grid-template-columns: 1fr 280px; grid-template-rows: auto auto auto 1fr; }
+  .modal.group       { grid-template-columns: 240px 1fr 280px; grid-template-rows: auto auto 1fr; }
+  /* Header: identity on the left, visit actions on the right, one row. */
+  .modal-top { grid-column: 1 / -1; grid-row: 1; display: flex; flex-direction: row;
+    align-items: center; gap: 16px; padding: 10px 16px; border-bottom: 1px solid var(--line); min-width: 0; }
+  .modal-top .mt-title-stack { flex: 1 1 auto; min-width: 0; }
+  .modal-top .title { font-weight: 600; font-size: 16px; letter-spacing: -0.015em; line-height: 1.2;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .modal-top .sub { color: var(--muted); font-size: 12px; letter-spacing: -0.01em; line-height: 1.3;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+  .modal-top .sub-link { background: transparent; border: 0; padding: 0; border-radius: 0;
+    color: var(--ink); font-weight: 500; font-size: 12px; letter-spacing: -0.01em; cursor: pointer;
+    white-space: nowrap; text-decoration: underline; text-underline-offset: 2px; }
+  .modal-top .sub-link:hover { background: transparent; }
+  .modal-top .mt-actions { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+  .modal-top .mt-rule { width: 1px; height: 20px; background: var(--line); flex: 0 0 1px; }
+  .modal-top .mt-actions .btn { padding: 7px 12px; font-size: 13px; }
+
+  /* Group modal left: attendee navigator */
+  .attendees { grid-column: 1; grid-row: 3; background: var(--rail); border-right: 1px solid var(--line);
+    overflow: auto; min-height: 0; display: flex; flex-direction: column; }
+  .attendees-head { padding: 12px; border-bottom: 1px solid var(--line); }
+  .attendees-head .count { font-weight: 700; font-size: 13px; }
+  .attendees-head .progress { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .attendee-view-toggle { display: flex; gap: 4px; margin-top: 8px; background: var(--fill); padding: 2px; border-radius: 999px; }
+  .attendee-view-toggle span { flex: 1; text-align: center; padding: 4px; border-radius: 999px; font-size: 10px; cursor: pointer; color: var(--muted); }
+  .attendee-view-toggle span.active { background: #fff; color: var(--ink); font-weight: 600; }
+  .attendee-row { padding: 8px 12px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .attendee-row:hover { background: #eef0f3; }
+  .attendee-row.active { background: var(--fill); }
+  .attendee-row .avatar { width: 24px; height: 24px; flex: 0 0 24px; }
+  .attendee-row .meta { flex: 1; }
+  .attendee-row .meta .name { font-size: 12px; font-weight: 600; }
+  .attendee-row .meta .sub { font-size: 10px; color: var(--muted); }
+  .attendee-row .status { font-size: 10px; }
+  .attendee-add { padding: 10px 12px; color: var(--focus); cursor: pointer; font-size: 12px; }
+
+  /* Modal main — single page, all actions visible */
+  .modal-main { grid-row: 3; padding: 20px; overflow: auto; min-height: 0; position: relative; }
+  .modal.one-on-one .modal-main { grid-column: 1; grid-row: 4; }
+  .modal.group      .modal-main { grid-column: 2; }
+  .modal-main h2.section-title { font-size: 14px; margin: 20px 0 8px; display: flex; align-items: center; gap: 8px; }
+  .modal-main h2.section-title:first-child { margin-top: 0; }
+  .modal-main h2.section-title#s-products { margin-top: 20px; }
+  .modal-main h2.section-title .chev { color: var(--muted); font-size: 11px; }
+
+  /* In-visit views — two tabs, not stages. Each tab swaps the body below. */
+  .view-tabs { grid-column: 1 / -1; grid-row: 2; display: flex; align-items: stretch; gap: 0;
+    border-bottom: 1px solid var(--line); background: #fff; padding: 0 8px; }
+  .view-tabs .vt { background: transparent; border: 0; border-bottom: 2px solid transparent;
+    padding: 12px 16px; margin-bottom: -1px; font-size: 13px; font-weight: 500;
+    color: var(--muted); cursor: pointer; }
+  .view-tabs .vt.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--ink); }
+  .modal-view { display: none; }
+  .modal-view.active { display: block; }
+
+  /* Intelligent Content — Agent-ranked list with reorder arrows */
+  .content-toolbar { display: flex; align-items: center; gap: 6px; margin: -4px 0 10px;
+    flex-wrap: wrap; }
+  .content-toolbar .ct-filter { padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px;
+    font-size: 11px; color: var(--muted); cursor: pointer; background: #fff; }
+  .content-toolbar .ct-filter.active { background: var(--pill-active); color: var(--pill-active-ink);
+    border-color: transparent; font-weight: 600; }
+  .content-toolbar .ct-right { margin-left: auto; display: flex; gap: 6px; align-items: center;
+    color: var(--muted); font-size: 11px; }
+  .content-toolbar .ct-toggle { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+  .content-toolbar .ct-toggle .sw { width: 24px; height: 12px; border-radius: 6px; background: #d1d5db;
+    display: inline-block; position: relative; }
+  .content-toolbar .ct-toggle.on .sw { background: var(--focus); }
+  .content-toolbar .ct-toggle .sw::after { content: ''; position: absolute; top: 1px; left: 1px;
+    width: 10px; height: 10px; border-radius: 50%; background: #fff; transition: left .15s; }
+  .content-toolbar .ct-toggle.on .sw::after { left: 13px; }
+
+  .content-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px;
+    align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .content-row:last-child { border-bottom: 0; }
+  .content-row .rank { font-weight: 700; font-size: 13px; color: var(--muted); text-align: center; }
+  .content-row .rank.pinned { color: var(--focus); }
+  .content-row .thumb { display: none; }
+  .content-row .thumb.deck { background: var(--fill); }
+  .content-row .thumb.pdf  { background: var(--fill); color: var(--muted); }
+  .content-row .thumb.vid  { background: var(--fill); color: var(--muted); }
+  .content-row .thumb.talk { background: var(--fill); color: var(--muted); }
+  .content-row .cmain { min-width: 0; }
+  .content-row .ctitle { font-weight: 600; font-size: 13px; display: flex; align-items: center;
+    gap: 6px; flex-wrap: wrap; }
+  .content-row .cmeta { color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .content-row .why {
+    display: inline-block; margin-top: 4px;
+    background: var(--fill); border: 1px solid var(--line); color: var(--subtle); border-radius: 4px;
+    padding: 2px 8px; font-size: 11px;
+  }
+  .content-row .cact { display: flex; gap: 6px; align-items: center; }
+  .content-row.pinned { background: var(--fill); margin: 0; padding: 10px 8px; border-radius: 4px;
+    border-bottom: 1px solid var(--line); }
+
+  /* Jump nav chip — floating section jumper for the single-page SPA */
+  .jump-nav { grid-column: 1; grid-row: 3; position: static; z-index: 2; background: #fff;
+    margin: 0; padding: 10px 16px; border-bottom: 1px solid var(--line);
+    display: flex; flex-wrap: wrap; gap: 4px; }
+  .modal.is-content .jump-nav { display: none; }
+  .jump-nav .j { padding: 4px 8px; border-radius: 999px; font-size: 10px; color: var(--muted); cursor: pointer; }
+  .jump-nav .j:hover { background: var(--fill); }
+  .jump-nav .j.active { background: var(--pill-active); color: var(--pill-active-ink); font-weight: 600; }
+
+  .modal-agent { grid-row: 3; border-left: 1px solid var(--line);
+    background: var(--rail); padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow: auto; min-height: 0; }
+  .modal.one-on-one .modal-agent { grid-column: 2; grid-row: 3 / span 2; }
+  .modal.group      .modal-agent { grid-column: 3; }
+
+  /* Provider peek — slides over the agent column without leaving the visit. */
+  .hcp-peek { grid-row: 3 / span 2; grid-column: 2; width: 280px; justify-self: end; z-index: 4;
+    background: #fff; border-left: 1px solid var(--line); display: flex; flex-direction: column;
+    min-height: 0; overflow: hidden; transform: translateX(100%);
+    transition: transform .2s ease; pointer-events: none; }
+  .modal.group .hcp-peek { grid-column: 3; }
+  .hcp-peek.open { transform: translateX(0); pointer-events: auto; }
+  .hcp-peek-head { display: flex; align-items: flex-start; gap: 8px; padding: 12px;
+    border-bottom: 1px solid var(--line); }
+  .hcp-peek-head .k { font-size: 11px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+  .hcp-peek-head .who { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; }
+  .hcp-peek-head .meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .hcp-peek-head .btn { margin-left: auto; padding: 4px 8px; font-size: 12px; }
+  .hcp-peek-body { overflow: auto; padding: 12px; min-height: 0; }
+  .hcp-peek h4 { margin: 14px 0 6px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+  .hcp-peek h4:first-child { margin-top: 0; }
+  .hcp-peek .line { display: flex; justify-content: space-between; gap: 8px;
+    padding: 7px 0; border-bottom: 1px solid var(--line-soft); font-size: 12px; }
+  .hcp-peek .line:last-child { border-bottom: 0; }
+  .hcp-peek .line .k { color: var(--muted); flex: 0 0 auto; }
+  .hcp-peek .line .v { text-align: right; }
+  .hcp-peek .blurb { font-size: 12px; line-height: 1.4; }
+  .hcp-peek .blurb .sub { color: var(--muted); margin-top: 2px; }
+  .modal-top .sub-link.on { font-weight: 600; }
+
+  .form-field { padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+  .form-field:last-child { border-bottom: 0; }
+  .form-field label { display: block; font-size: 12px; text-transform: none;
+    letter-spacing: -0.01em; color: var(--muted); margin-bottom: 6px; font-weight: 500; }
+  .form-field .input { background: var(--fill); border: 0; border-radius: 10px;
+    padding: 10px 12px; color: var(--ink); font-size: 13.5px; display: flex; align-items: center; justify-content: space-between; gap: 8px; letter-spacing: -0.01em; }
+  .form-field .input .mic-inline { color: var(--muted); font-size: 11.5px; cursor: pointer; font-weight: 500; }
+  .pad { height: 96px; border: 1px dashed var(--line); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 12.5px; background: var(--fill); letter-spacing: -0.01em; }
+
+  .legend { max-width: 1194px; margin: 10px auto 0; color: var(--muted); font-size: 12px; padding: 0 4px; }
+  .legend b { color: var(--ink); }
+  .legend .pill { display: inline-block; background: var(--voice); color: var(--voice-ink); padding: 1px 7px; border-radius: 999px; font-size: 11px; }
+
+  .toast {
+    position: fixed; left: 50%; top: 70px; transform: translateX(-50%);
+    background: #111; color: #fff; padding: 10px 16px; border-radius: 8px;
+    font-size: 13px; box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    z-index: 100; opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .toast.show { opacity: 1; }
+
+  /* Action sheets — triggered from NBA / Future Guidance / Voice cards */
+  .sheet-backdrop {
+    position: absolute; inset: 36px 0 0 0;
+    background: rgba(0,0,0,.55); display: none;
+    align-items: center; justify-content: center;
+    z-index: 20; padding: 40px;
+  }
+  .sheet-backdrop.open { display: flex; }
+  .sheet {
+    background: #fff; border-radius: 14px; width: 580px; max-height: 100%;
+    display: flex; flex-direction: column; overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,.3);
+  }
+  .sheet-head {
+    padding: 14px 18px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .sheet-head .ttl { font-weight: 700; font-size: 15px; }
+  .sheet-head .sub { color: var(--muted); font-size: 12px; }
+  .sheet-head .close { margin-left: auto; }
+  .sheet-body { padding: 16px 18px; overflow: auto; flex: 1; }
+  .sheet-body h4 { margin: 12px 0 4px; font-size: 11px; text-transform: uppercase;
+    letter-spacing: .08em; color: var(--muted); }
+  .sheet-body h4:first-child { margin-top: 0; }
+  .sheet-body ol { margin: 4px 0; padding-left: 22px; }
+  .sheet-body ol li { margin: 4px 0; }
+  .sheet-body p { margin: 4px 0; }
+  .because {
+    background: var(--fill); border: 1px solid var(--line); border-radius: 6px; padding: 12px;
+    font-size: 12px; color: var(--ink);
+  }
+  .slide-thumb {
+    margin-top: 6px; height: 100px; border: 1px dashed var(--line); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; color: var(--muted);
+    font-size: 12px; background: linear-gradient(135deg, #fafbfc 0%, #f3f4f6 100%);
+  }
+  .radio-row { display: flex; align-items: center; gap: 8px; padding: 6px 0;
+    border-bottom: 1px solid var(--line); cursor: pointer; }
+  .radio-row:last-child { border: 0; }
+  .radio-row .r { width: 14px; height: 14px; border: 2px solid var(--line); border-radius: 50%; flex: 0 0 14px; }
+  .radio-row.sel .r { border-color: var(--focus); background: radial-gradient(circle, var(--focus) 40%, transparent 50%); }
+  .radio-row .r-main { flex: 1; }
+  .radio-row .r-main .name { font-weight: 600; font-size: 13px; }
+  .radio-row .r-main .sub { color: var(--muted); font-size: 11px; }
+  .voice-wave {
+    background: var(--voice); color: var(--voice-ink); padding: 18px;
+    border-radius: 10px; text-align: center; font-weight: 600; display: flex;
+    flex-direction: column; align-items: center; gap: 10px;
+  }
+  .voice-wave .bars { display: flex; gap: 3px; align-items: center; height: 32px; }
+  .voice-wave .bar { width: 3px; background: var(--voice-ink); border-radius: 2px;
+    animation: vw 1s infinite ease-in-out; }
+  .voice-wave .bar:nth-child(1) { animation-delay: 0s; }
+  .voice-wave .bar:nth-child(2) { animation-delay: .1s; }
+  .voice-wave .bar:nth-child(3) { animation-delay: .2s; }
+  .voice-wave .bar:nth-child(4) { animation-delay: .3s; }
+  .voice-wave .bar:nth-child(5) { animation-delay: .4s; }
+  .voice-wave .bar:nth-child(6) { animation-delay: .3s; }
+  .voice-wave .bar:nth-child(7) { animation-delay: .2s; }
+  @keyframes vw { 0%, 100% { height: 8px; } 50% { height: 28px; } }
+  .parsed-row { display: flex; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .parsed-row:last-child { border: 0; }
+  .parsed-row .k { width: 110px; color: var(--muted); font-size: 11px;
+    text-transform: uppercase; letter-spacing: .08em; }
+  .parsed-row .v { font-weight: 600; font-size: 13px; }
+  .sheet-foot {
+    padding: 12px 18px; border-top: 1px solid var(--line);
+    display: flex; gap: 8px; justify-content: flex-end; background: #fafbfc;
+    align-items: center;
+  }
+  .sheet-foot .foot-note { margin-right: auto; color: var(--muted); font-size: 11px; }
+  .nba-card.done, .agent-card.done {
+    opacity: .55; pointer-events: none;
+  }
+  .nba-card .done-chip, .agent-card .done-chip {
+    display: none; align-self: flex-start; background: var(--fill); color: var(--ink);
+    padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+  }
+  .nba-card.done .done-chip, .agent-card.done .done-chip { display: inline-block; }
+  .nba-card.done .act, .agent-card.done .act { display: none; }
+
+  /* Call-plan tier summary (Accounts) */
+  .tier-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+  .tier { background: #fff; border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .tier-k { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .tier-v { font-size: 20px; font-weight: 700; }
+  .tier-s { font-size: 11px; color: var(--muted); }
+  .tier-pill { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 10px;
+    color: var(--ink); font-weight: 600; margin-left: 6px; vertical-align: middle;
+    border: 1px solid var(--line); background: #fff; }
+  .tier-pill.a { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .tier-pill.b { background: var(--fill-2); color: var(--ink); border-color: transparent; }
+  .tier-pill.c { background: #fff; color: var(--muted); }
+
+  /* Grid / Map / List view toggle (Accounts) */
+  .view-toggle { display: inline-flex; background: var(--fill); padding: 3px; border-radius: 6px;
+    gap: 2px; margin: 0 0 16px; }
+  .view-opt { padding: 5px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; color: var(--muted); }
+  .view-opt.active { background: #fff; color: var(--ink); font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .view-pane { display: none; }
+  .view-pane.active { display: block; }
+
+  /* Map view */
+  .map-wrap { position: relative; height: 440px; border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--line);
+    background: #f2f2f7; }
+  .map-grid { position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(0,0,0,.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0,0,0,.06) 1px, transparent 1px);
+    background-size: 40px 40px; }
+  .map-road { position: absolute; background: #d2d2d7; }
+  .map-road.h { left: 0; right: 0; height: 10px; }
+  .map-road.v { top: 0; bottom: 0; width: 10px; }
+  .map-pin { position: absolute; width: 22px; height: 22px; border-radius: 50% 50% 50% 0;
+    background: var(--focus); border: 2px solid #fff; transform: rotate(-45deg);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,.2); cursor: pointer; }
+  .map-pin::after { content: ''; width: 5px; height: 5px; background: #fff; border-radius: 50%; }
+  .map-pin.tier-a { background: #1d1d1f; }
+  .map-pin.tier-b { background: #6e6e73; }
+  .map-pin.tier-c { background: #aeaeb2; }
+  .map-pin:hover { transform: rotate(-45deg) scale(1.3); z-index: 3; }
+  .map-pin .lbl { position: absolute; left: 26px; top: 0; transform: rotate(45deg);
+    background: #111; color: #fff; padding: 3px 8px; border-radius: 6px;
+    font-size: 10px; white-space: nowrap; display: none; }
+  .map-pin:hover .lbl { display: block; }
+  .map-pin.today { outline: 2px solid #1d1d1f; outline-offset: 2px; }
+  .map-overlay { position: absolute; background: rgba(255,255,255,.95);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 11px; }
+  .map-overlay.route { left: 12px; top: 12px; display: flex; flex-direction: column; gap: 2px; max-width: 260px; }
+  .map-overlay.route b { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .map-overlay.legend { left: 12px; bottom: 12px; display: flex; gap: 10px; align-items: center; }
+  .map-overlay.legend .dot { width: 10px; height: 10px; border-radius: 50%; margin-right: 4px;
+    display: inline-block; vertical-align: middle; }
+  .map-overlay.legend .dot.a { background: #1d1d1f; }
+  .map-overlay.legend .dot.b { background: #6e6e73; }
+  .map-overlay.legend .dot.c { background: #aeaeb2; }
+  .map-overlay.me { right: 12px; top: 12px; display: flex; align-items: center; gap: 6px; }
+  .map-overlay.me .me-dot { width: 10px; height: 10px; background: #1d1d1f;
+    border: 2px solid #fff; border-radius: 50%; }
+
+  /* List view (dense table) */
+  .list-table { width: 100%; border-collapse: collapse; font-size: 12px;
+    background: #fff; border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .list-table th { background: #fafbfc; text-align: left; padding: 10px; font-weight: 600;
+    color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+    border-bottom: 1px solid var(--line); }
+  .list-table td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .list-table tr:last-child td { border-bottom: 0; }
+  .list-table tr.clickable { cursor: pointer; }
+  .list-table tr.clickable:hover { background: #f9fafb; }
+  .list-table .tier-chip { display: inline-block; width: 20px; text-align: center;
+    padding: 2px 0; border-radius: 4px; color: #fff; font-size: 10px; font-weight: 700; }
+  .list-table .tier-chip.a { background: #1d1d1f; }
+  .list-table .tier-chip.b { background: #6e6e73; }
+  .list-table .tier-chip.c { background: #aeaeb2; color: #1d1d1f; }
+
+  /* iOS chrome controls — filled circle, icon only */
+  .icon-btn { width: 30px; height: 30px; border-radius: 50%; border: 0; padding: 0;
+    background: rgba(120,120,128,.16); color: rgba(60,60,67,.9);
+    display: inline-flex; align-items: center; justify-content: center;
+    cursor: pointer; flex: 0 0 auto; line-height: 0; }
+  .icon-btn svg { width: 14px; height: 14px; display: block; }
+  .icon-btn:hover { background: rgba(120,120,128,.28); color: var(--ink); }
+  .icon-btn.plain { background: transparent; }
+  .icon-btn.plain:hover { background: var(--fill); }
+
+  /* Collapsible agent panel */
+  .agent-toggle { position: absolute; top: 8px; right: 8px; z-index: 2; }
+  .inspector, .modal-agent { position: relative; }
+  .inspector-rail { display: none; flex-direction: column; align-items: center;
+    gap: 10px; padding-top: 2px; cursor: pointer; }
+  .inspector-rail:hover .rail-icon { background: var(--nba-ink); color: #fff; }
+  .inspector-rail .rail-icon { background: var(--nba); color: var(--nba-ink);
+    width: 28px; height: 28px; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; font-size: 14px; }
+  .inspector-rail .rail-label { font-size: 10px; color: var(--muted);
+    writing-mode: vertical-rl; text-orientation: mixed; letter-spacing: .12em;
+    text-transform: uppercase; margin-top: 6px; }
+  .ipad.agent-collapsed { grid-template-columns: 220px 1fr 56px; }
+  .ipad.agent-collapsed .inspector { padding: 10px 6px; overflow: hidden; }
+  .ipad.agent-collapsed .inspector > *:not(.agent-toggle):not(.inspector-rail) { display: none; }
+  .ipad.agent-collapsed .inspector .inspector-rail { display: flex; margin-top: 36px; }
+  .ipad.agent-collapsed .inspector .agent-toggle { right: auto; left: 50%; transform: translateX(-50%); }
+  .modal.one-on-one.agent-collapsed { grid-template-columns: 1fr 56px; }
+  .modal.group.agent-collapsed       { grid-template-columns: 240px 1fr 56px; }
+  .modal.agent-collapsed .modal-agent { padding: 10px 6px; overflow: hidden; }
+  .modal.agent-collapsed .modal-agent > *:not(.agent-toggle):not(.inspector-rail) { display: none; }
+  .modal.agent-collapsed .modal-agent .inspector-rail { display: flex; margin-top: 36px; }
+  .modal.agent-collapsed .modal-agent .agent-toggle { right: auto; left: 50%; transform: translateX(-50%); }
+
+  .screen { display: none; }
+  .screen.active { display: grid; }
+
+  .visit-dock {
+    position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%);
+    z-index: 40; display: none; align-items: center; gap: 12px;
+    background: var(--ink); color: #fff; border-radius: 14px;
+    padding: 10px 10px 10px 16px; box-shadow: 0 10px 28px rgba(0,0,0,.22);
+    min-width: 320px;
+  }
+  .visit-dock.show { display: flex; }
+  .visit-dock .who { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+  .visit-dock .meta { font-size: 12px; color: #c7c7cc; margin-top: 1px; }
+  .visit-dock .icon-btn { background: rgba(255,255,255,.18); color: #fff; }
+  .visit-dock .icon-btn:hover { background: rgba(255,255,255,.3); color: #fff; }
+  .hcp-peek-head .icon-btn { margin-left: auto; }
+  .sig-clear { float: right; width: 22px; height: 22px; margin-top: -2px; }
+  .sig-clear svg { width: 12px; height: 12px; }
+
+  .mode-pane { display: none; }
+  .mode-pane.active { display: block; }
+  /* The in-visit wrap must stay a flex column so the body gets a real height and can scroll. */
+  .modal-wrap.mode-pane.active { display: flex; }
+  .modal { height: 100%; }
+</style>
+</head>
+<body>
+  <div class="toolbar">
+    <h1>Rep Visit — IA Prototype v2</h1>
+    <div class="tabs">
+      <button class="tab active" data-nav="today">Today</button>
+      <button class="tab" data-nav="accounts">Accounts</button>
+      <button class="tab" data-nav="hcp">HCP</button>
+      <button class="tab" data-nav="visits">Visits</button>
+      <button class="tab" data-nav="visit">Visit</button>
+      <button class="tab" data-nav="invisit">In-Visit</button>
+    </div>
+    <span class="research-tag">All-Actions SPA · No tabs · Voice-first · NBA</span>
+    <div class="meta">1194 × 834</div>
+  </div>
+
+  <div class="stage">
+
+    <!-- ====================== TODAY ====================== -->
+    <div class="ipad screen active" id="screen-today">
+      <div class="statusbar">
+        <span class="left">9:41 AM · Wed Oct 7</span>
+        <span><span class="mic-badge">Hold anywhere to dictate</span> · Online</span>
+      </div>
+
+      <aside class="sidebar">
+        <div class="brand">Rep Visit</div>
+        <div class="brand-sub">Visit-first workflow</div>
+        <div class="search" data-nav="accounts">Search… </div>
+        <div class="nav-item active" data-nav="today">Today</div>
+        <div class="nav-item" data-nav="accounts">Accounts</div>
+        <div class="nav-sub">Call Plan · HCPs · HCOs · Map · Nearby</div>
+        <div class="nav-item" data-nav="visits">Visits <span class="badge">1</span></div>
+        <div class="nav-sub">Upcoming · In Progress · Submitted</div>
+        <div class="nav-item">Content Library</div>
+        <div class="nav-sub">CLM · Emails · Brochures</div>
+        <div class="nav-item">Tasks <span class="badge">4</span></div>
+        <div class="nav-item">Insights</div>
+      </aside>
+
+      <main class="main">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Today</h1>
+            <p class="page-sub">Wednesday, Oct 7 · 5 scheduled · 1 in progress</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn voice">Log a Visit</button>
+            <button class="btn primary" data-nav="accounts">+ Start a Visit</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>In Progress <span class="chip warn">Resume</span></h2>
+          <div class="list-item clickable" data-nav="invisit" data-nav-mode="group">
+            
+            <div class="meta">
+              <div class="name">Lunch & Learn — Pacific Oncology <span class="chip group">18 attendees</span></div>
+              <div class="sub">Started 10:04 AM · 12 of 18 signatures captured</div>
+            </div>
+            <div class="time">Resume</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:16px">
+          <div class="card">
+            <h2>Scheduled Visits</h2>
+            <div class="list-item clickable" data-nav="visit">
+              <div class="meta"><div class="name">Dr. Priya Shah</div>
+              <div class="sub">11:30 · Pacific Oncology · 1:1 · Detail Oncuvia</div>
+              <div class="last-touch-line">Last visit (Sep 23): detailed Oncuvia · asked about renal dosing</div></div>
+              <div class="time">11:30</div></div>
+            <div class="list-item clickable" data-nav="visit">
+              <div class="meta"><div class="name">Dr. Elena Ruiz</div>
+              <div class="sub">1:00 · UCSF · 1:1 · Follow-up on inquiry</div>
+              <div class="last-touch-line">Last visit (Sep 30): awaiting MA response on dosing</div></div>
+              <div class="time">1:00</div></div>
+            <div class="list-item clickable" data-nav="visit">
+              <div class="meta"><div class="name">Dr. Omar Haddad</div>
+              <div class="sub">3:15 · Mission Internal Med · 1:1</div></div>
+              <div class="time">3:15</div></div>
+          </div>
+          <div class="card">
+            <h2>Next Best Actions <span class="chip">Agent</span></h2>
+            <div class="list-item clickable">
+              <div class="meta"><div class="name">Send renal-dosing response to Dr. Shah</div>
+              <div class="sub">MA replied overnight · ready to share pre-visit</div></div>
+              <button class="btn primary">Send</button></div>
+            <div class="list-item clickable">
+              <div class="meta"><div class="name">Reorder route for 18 min savings</div>
+              <div class="sub">Shah Haddad Ruiz reduces backtracking</div></div>
+              <button class="btn">Apply</button></div>
+            <div class="list-item clickable" data-nav="hcp">
+              <div class="meta"><div class="name">Add Dr. Weiss to tomorrow</div>
+              <div class="sub">Nearby · 92d since last visit · Rx trend up</div></div>
+              <button class="btn">+ Add</button></div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="inspector">
+        <button type="button" class="icon-btn agent-toggle" data-agent-toggle aria-label="Show or hide agent" title="Show or hide agent"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.4 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg></button>
+        <div class="inspector-rail" data-agent-toggle title="Expand agent panel">
+        </div>
+        <h3>Agent</h3>
+        <div class="nba-card">
+          <div class="label">Next best action</div>
+          <div class="title">Brief me on today</div>
+          <div class="body">Past context for all 5 visits · generates one-page summary.</div>
+          <div class="act">Generate</div>
+        </div>
+        <div class="agent-card">
+          <div class="label">Voice</div>
+          <div class="title">"Log a sample for Dr. Shah"</div>
+          <div class="body">Dictate commands anywhere in the app.</div>
+        </div>
+        <div class="agent-input">Ask or dictate…</div>
+      </aside>
+    </div>
+
+    <!-- ====================== ACCOUNTS ====================== -->
+    <div class="ipad screen" id="screen-accounts">
+      <div class="statusbar">
+        <span class="left"><span class="crumb" data-nav="today">Today</span><span class="crumb-sep">/</span> Accounts</span>
+        <span>Territory: Bay Area North</span>
+      </div>
+      <aside class="sidebar">
+        <div class="brand">Rep Visit</div>
+        <div class="brand-sub">Visit-first workflow</div>
+        <div class="search">Search… </div>
+        <div class="nav-item" data-nav="today">Today</div>
+        <div class="nav-item active">Accounts</div>
+        <div class="nav-sub">HCPs · HCOs</div>
+        <div class="nav-item" data-nav="visits">Visits</div>
+        <div class="nav-item">Content Library</div>
+        <div class="nav-item">Tasks</div>
+        <div class="nav-item">Insights</div>
+      </aside>
+      <main class="main">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Accounts</h1>
+            <p class="page-sub">142 HCPs on your call plan · 4,218 total · 312 HCOs · Q4 attainment 61%</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn voice">"Who hasn't been seen in 60d?"</button>
+            <button class="btn primary">Plan Route</button>
+          </div>
+        </div>
+
+        <div class="tier-bar">
+          <div class="tier">
+            <div class="tier-k">Tier A · must-see</div>
+            <div class="tier-v">24 HCPs</div>
+            <div class="tier-s">2× / mo · 6 behind cadence</div>
+          </div>
+          <div class="tier">
+            <div class="tier-k">Tier B · priority</div>
+            <div class="tier-v">58 HCPs</div>
+            <div class="tier-s">1× / mo · 42 on-pace</div>
+          </div>
+          <div class="tier">
+            <div class="tier-k">Tier C · maintain</div>
+            <div class="tier-v">60 HCPs</div>
+            <div class="tier-s">1× / qtr · 51 on-pace</div>
+          </div>
+          <div class="tier">
+            <div class="tier-k">Group targets</div>
+            <div class="tier-v">6 HCOs</div>
+            <div class="tier-s">Lunch & Learn candidates</div>
+          </div>
+        </div>
+
+        <div class="filters">
+          <div class="filter active">All my HCPs <span class="chip" style="margin-left:4px">142</span></div>
+          <div class="filter">Tier A</div>
+          <div class="filter">Tier B</div>
+          <div class="filter">Tier C</div>
+          <div class="filter">Behind cadence <span class="chip bad" style="margin-left:4px">14</span></div>
+          <div class="filter">Nearby to me</div>
+          <div class="filter">Rx growing</div>
+          <div class="filter">Consent expiring</div>
+          <div class="filter">Open items</div>
+          <div class="filter">New</div>
+        </div>
+
+        <div class="view-toggle" data-view-group="accounts">
+          <div class="view-opt active" data-view="grid">Grid</div>
+          <div class="view-opt" data-view="map">Map</div>
+          <div class="view-opt" data-view="list">List</div>
+        </div>
+
+        <!-- GRID VIEW -->
+        <div class="view-pane active" data-view-pane="grid">
+          <div class="section-header">
+            <h2>Suggested for today <span class="chip">Agent</span></h2>
+          </div>
+          <div class="account-grid">
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Hannah Weiss <span class="tier-pill a">A</span></div>
+                <div class="sub">Oncology · Berkeley Cancer</div></div></div>
+              <div class="last-touch-line">Last visit 92d ago · 48d behind cadence · positive</div>
+              <div class="account-meta"><span class="chip good">Rx up</span><span class="chip">Nearby</span></div>
+            </div>
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Kenji Tanaka <span class="tier-pill b">B</span></div>
+                <div class="sub">Rheumatology · Alta Bates</div></div></div>
+              <div class="last-touch-line">Last visit 42d · asked about Neurova PA process</div>
+              <div class="account-meta"><span class="chip bad">1 overdue</span></div>
+            </div>
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Alvarez <span class="tier-pill a">A</span></div>
+                <div class="sub">Oncology · CPMC</div></div></div>
+              <div class="last-touch-line">Last visit 60d · consent expires in 24 days</div>
+              <div class="account-meta"><span class="chip warn">Consent 24d</span></div>
+            </div>
+          </div>
+
+          <div class="section-header">
+            <h2>Call Plan — Tier A · must-see <span class="chip">24</span></h2>
+            <span class="link">See all</span>
+          </div>
+          <div class="account-grid">
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Priya Shah <span class="tier-pill a">A</span></div>
+                <div class="sub">Medical Oncology · Pacific Oncology</div></div></div>
+              <div class="last-touch-line">14d · on-pace · 1 inquiry pending · Rx up</div>
+              <div class="account-meta"><span class="chip good">On-pace</span></div>
+            </div>
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Hannah Weiss <span class="tier-pill a">A</span></div>
+                <div class="sub">Oncology · Berkeley Cancer</div></div></div>
+              <div class="last-touch-line">92d · 48d behind · overdue visit</div>
+              <div class="account-meta"><span class="chip bad">Behind</span></div>
+            </div>
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Chen Wu <span class="tier-pill a">A</span></div>
+                <div class="sub">Hematology · UCSF</div></div></div>
+              <div class="last-touch-line">35d · consent expiring 30d · schedule renewal</div>
+              <div class="account-meta"><span class="chip warn">Consent 30d</span></div>
+            </div>
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Alvarez <span class="tier-pill a">A</span></div>
+                <div class="sub">Oncology · CPMC</div></div></div>
+              <div class="last-touch-line">60d · consent 24d · behind cadence</div>
+              <div class="account-meta"><span class="chip bad">Behind</span></div>
+            </div>
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Marcus Liu <span class="tier-pill a">A</span></div>
+                <div class="sub">Pulmonology · Bay Pulmonary</div></div></div>
+              <div class="last-touch-line">2d · just visited · Rx up positive</div>
+              <div class="account-meta"><span class="chip good">On-pace</span></div>
+            </div>
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Ellis Osei <span class="tier-pill a">A</span></div>
+                <div class="sub">Oncology · Kaiser SF</div></div></div>
+              <div class="last-touch-line">26d · on-pace · consent valid</div>
+              <div class="account-meta"><span class="chip good">On-pace</span></div>
+            </div>
+          </div>
+
+          <div class="section-header">
+            <h2>Call Plan — Tier B · priority <span class="chip">58</span></h2>
+            <span class="link">See all</span>
+          </div>
+          <div class="account-grid">
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Elena Ruiz <span class="tier-pill b">B</span></div>
+                <div class="sub">Internal Medicine · UCSF</div></div></div>
+              <div class="last-touch-line">7d · follow-up owed · consent 60d</div>
+              <div class="account-meta"><span class="chip warn">Follow-up</span></div>
+            </div>
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Omar Haddad <span class="tier-pill b">B</span></div>
+                <div class="sub">Internal Medicine · Mission</div></div></div>
+              <div class="last-touch-line">21d · Rx trending down · no inquiry activity</div>
+              <div class="account-meta"><span class="chip bad">Rx down</span></div>
+            </div>
+            <div class="account-card" data-nav="hcp">
+              <div class="account-head">
+                <div><div class="name">Dr. Yuki Park <span class="tier-pill c">C</span></div>
+                <div class="sub">Cardiology · Stanford</div></div></div>
+              <div class="last-touch-line">Never visited · new to territory · intro suggested</div>
+              <div class="account-meta"><span class="chip info">New</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAP VIEW -->
+        <div class="view-pane" data-view-pane="map">
+          <div class="map-wrap">
+            <div class="map-grid"></div>
+            <div class="map-road h" style="top: 30%"></div>
+            <div class="map-road h" style="top: 55%; height: 14px"></div>
+            <div class="map-road h" style="top: 80%"></div>
+            <div class="map-road v" style="left: 22%"></div>
+            <div class="map-road v" style="left: 50%; width: 14px"></div>
+            <div class="map-road v" style="left: 78%"></div>
+
+            <div class="map-overlay route">
+              <b>Today's route · 3 stops</b>
+              <span>11:30 Shah 1:00 Ruiz 3:15 Haddad</span>
+              <span style="color:var(--focus); font-weight:600; cursor:pointer">Agent: reorder saves 18 min</span>
+            </div>
+
+            <div class="map-overlay me"><span class="me-dot"></span> You · Berkeley</div>
+
+            <div class="map-pin tier-a today" style="left: 48%; top: 42%"><span class="lbl">Dr. Shah · 11:30 today · Tier A</span></div>
+            <div class="map-pin tier-b today" style="left: 55%; top: 60%"><span class="lbl">Dr. Ruiz · 1:00 today · Tier B</span></div>
+            <div class="map-pin tier-b today" style="left: 38%; top: 72%"><span class="lbl">Dr. Haddad · 3:15 today · Tier B</span></div>
+            <div class="map-pin tier-a" style="left: 18%; top: 20%"><span class="lbl">Dr. Weiss · Tier A · 92d</span></div>
+            <div class="map-pin tier-a" style="left: 72%; top: 35%"><span class="lbl">Dr. Alvarez · Tier A · behind</span></div>
+            <div class="map-pin tier-a" style="left: 68%; top: 68%"><span class="lbl">Dr. Chen Wu · consent 30d</span></div>
+            <div class="map-pin tier-a" style="left: 25%; top: 50%"><span class="lbl">Dr. Marcus Liu · just visited</span></div>
+            <div class="map-pin tier-b" style="left: 30%; top: 30%"><span class="lbl">Dr. Kenji Tanaka</span></div>
+            <div class="map-pin tier-c" style="left: 82%; top: 82%"><span class="lbl">Dr. Yuki Park · new</span></div>
+            <div class="map-pin tier-a" style="left: 60%; top: 20%"><span class="lbl">Dr. Ellis Osei · on-pace</span></div>
+            <div class="map-pin tier-b" style="left: 15%; top: 68%"><span class="lbl">Dr. R. Patel</span></div>
+            <div class="map-pin tier-c" style="left: 42%; top: 85%"><span class="lbl">Dr. J. Nguyen</span></div>
+            <div class="map-pin tier-c" style="left: 85%; top: 25%"><span class="lbl">Dr. S. Kim</span></div>
+            <div class="map-pin tier-b" style="left: 10%; top: 42%"><span class="lbl">Dr. T. Oshiro</span></div>
+
+            <div class="map-overlay legend">
+              <span><span class="dot a"></span>Tier A (24)</span>
+              <span><span class="dot b"></span>Tier B (58)</span>
+              <span><span class="dot c"></span>Tier C (60)</span>
+              <span style="color:var(--ink)">Today</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LIST VIEW -->
+        <div class="view-pane" data-view-pane="list">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>Tier</th>
+                <th>HCP</th>
+                <th>Specialty · HCO</th>
+                <th>Last visit</th>
+                <th>Cadence</th>
+                <th>Rx trend</th>
+                <th>Open items</th>
+                <th>Next action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip a">A</span></td>
+                <td>Dr. Priya Shah</td>
+                <td>Med Oncology · Pacific Oncology</td>
+                <td>14d ago</td>
+                <td><span class="chip good">On-pace</span></td>
+                <td><span class="chip good">Oncuvia up</span></td>
+                <td>1 inquiry</td>
+                <td>Deliver MA response</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip a">A</span></td>
+                <td>Dr. Hannah Weiss</td>
+                <td>Oncology · Berkeley Cancer</td>
+                <td>92d ago</td>
+                <td><span class="chip bad">Behind 48d</span></td>
+                <td><span class="chip good">Oncuvia up</span></td>
+                <td>—</td>
+                <td>Schedule visit</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip a">A</span></td>
+                <td>Dr. Chen Wu</td>
+                <td>Hematology · UCSF</td>
+                <td>35d ago</td>
+                <td><span class="chip">Due</span></td>
+                <td><span class="chip">—</span></td>
+                <td>Consent 30d</td>
+                <td>Consent renewal</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip a">A</span></td>
+                <td>Dr. Alvarez</td>
+                <td>Oncology · CPMC</td>
+                <td>60d ago</td>
+                <td><span class="chip bad">Behind</span></td>
+                <td><span class="chip">—</span></td>
+                <td>Consent 24d</td>
+                <td>Consent + visit</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip a">A</span></td>
+                <td>Dr. Marcus Liu</td>
+                <td>Pulmonology · Bay Pulmonary</td>
+                <td>2d ago</td>
+                <td><span class="chip good">On-pace</span></td>
+                <td><span class="chip good">up</span></td>
+                <td>—</td>
+                <td>Follow-up email</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip a">A</span></td>
+                <td>Dr. Ellis Osei</td>
+                <td>Oncology · Kaiser SF</td>
+                <td>26d ago</td>
+                <td><span class="chip good">On-pace</span></td>
+                <td><span class="chip">—</span></td>
+                <td>—</td>
+                <td>Share Neurova deck</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip b">B</span></td>
+                <td>Dr. Elena Ruiz</td>
+                <td>Internal Med · UCSF</td>
+                <td>7d ago</td>
+                <td><span class="chip warn">Follow-up</span></td>
+                <td><span class="chip">—</span></td>
+                <td>MA response</td>
+                <td>Follow-up on inquiry</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip b">B</span></td>
+                <td>Dr. Omar Haddad</td>
+                <td>Internal Med · Mission</td>
+                <td>21d ago</td>
+                <td><span class="chip">Due</span></td>
+                <td><span class="chip bad">down</span></td>
+                <td>—</td>
+                <td>Visit · address Rx trend</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip b">B</span></td>
+                <td>Dr. Kenji Tanaka</td>
+                <td>Rheumatology · Alta Bates</td>
+                <td>42d ago</td>
+                <td><span class="chip bad">Behind</span></td>
+                <td><span class="chip">—</span></td>
+                <td>1 overdue</td>
+                <td>Address PA question</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip c">C</span></td>
+                <td>Dr. Yuki Park</td>
+                <td>Cardiology · Stanford</td>
+                <td>—</td>
+                <td><span class="chip info">New</span></td>
+                <td><span class="chip">—</span></td>
+                <td>—</td>
+                <td>Intro visit</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip c">C</span></td>
+                <td>Dr. R. Patel</td>
+                <td>Internal Med · San Mateo</td>
+                <td>58d ago</td>
+                <td><span class="chip good">On-pace</span></td>
+                <td><span class="chip">—</span></td>
+                <td>—</td>
+                <td>Maintain</td>
+              </tr>
+              <tr class="clickable" data-nav="hcp">
+                <td><span class="tier-chip c">C</span></td>
+                <td>Dr. S. Kim</td>
+                <td>Cardiology · Mills-Peninsula</td>
+                <td>71d ago</td>
+                <td><span class="chip">Due</span></td>
+                <td><span class="chip">—</span></td>
+                <td>—</td>
+                <td>Maintain visit</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+      <aside class="inspector">
+        <button type="button" class="icon-btn agent-toggle" data-agent-toggle aria-label="Show or hide agent" title="Show or hide agent"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.4 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg></button>
+        <div class="inspector-rail" data-agent-toggle title="Expand agent panel">
+        </div>
+        <h3>Agent</h3>
+        <div class="nba-card">
+          <div class="label">Next best action</div>
+          <div class="title">Build visit targets for Q4</div>
+          <div class="body">Rx trends + open items + consent runway.</div>
+          <div class="act">Build list</div>
+        </div>
+        <div class="agent-card">
+          <div class="label">Voice</div>
+          <div class="title">"Oncologists near UCSF, no visit in 60 days"</div>
+          <div class="body">Natural language search across your territory.</div>
+        </div>
+        <div class="agent-input">Ask or dictate…</div>
+      </aside>
+    </div>
+
+    <!-- ====================== HCP RECORD (All-Actions SPA, no tabs) ====================== -->
+    <div class="ipad screen" id="screen-hcp">
+      <div class="statusbar">
+        <span class="left">
+          <span class="crumb" data-nav="today">Today</span><span class="crumb-sep">/</span>
+          <span class="crumb" data-nav="accounts">Accounts</span><span class="crumb-sep">/</span>
+          HCPs <span class="crumb-sep">/</span> Dr. Priya Shah
+        </span>
+        <span>Online</span>
+      </div>
+      <aside class="sidebar">
+        <div class="brand">Rep Visit</div>
+        <div class="brand-sub">Visit-first workflow</div>
+        <div class="search">Search… </div>
+        <div class="nav-item" data-nav="today">Today</div>
+        <div class="nav-item active" data-nav="accounts">Accounts</div>
+        <div class="nav-sub">HCPs · HCOs</div>
+        <div class="nav-item" data-nav="visits">Visits</div>
+        <div class="nav-item">Content Library</div>
+        <div class="nav-item">Tasks</div>
+        <div class="nav-item">Insights</div>
+      </aside>
+      <main class="main">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Dr. Priya Shah, MD</h1>
+            <p class="page-sub">Medical Oncology · Pacific Oncology Group · NPI 1234567890</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn voice">Log a note</button>
+            <button class="btn">Log Follow-up</button>
+            <button class="btn primary" data-nav="visit">Start a Visit</button>
+          </div>
+        </div>
+
+        <!-- Highlights with Last Touch promoted -->
+        <div class="highlights">
+          <div class="cell last-touch">
+            <div class="k">Last visit · 14 days ago</div>
+            <div class="v">Detailed Oncuvia · asked about renal dosing</div>
+            <div class="vsub">Positive sentiment · materials left · MA response ready to share</div>
+          </div>
+          <div class="cell"><div class="k">Open items</div><div class="v">1 inquiry</div><div class="vsub">awaiting MA response</div></div>
+          <div class="cell"><div class="k">Consent (TC)</div><div class="v">Active</div><div class="vsub">expires Jul 2026</div></div>
+          <div class="cell"><div class="k">Rx trend (90d)</div><div class="v">Oncuvia up</div><div class="vsub">42 to 51 TRx</div></div>
+        </div>
+
+        <!-- NO TABS — All sections stacked, single page -->
+        <div style="margin-top:16px">
+          <div class="card">
+            <h2>Next Best Actions <span class="chip">Agent</span></h2>
+            <div class="list-item">
+              <div class="meta"><div class="name">Share MA response on renal dosing</div>
+                <div class="sub">Response ready · can deliver via approved email or in-visit</div></div>
+              <button class="btn primary">Send</button></div>
+            <div class="list-item">
+              <div class="meta"><div class="name">Introduce Neurova sample</div>
+                <div class="sub">HCP showed interest at last visit · PA pathway available</div></div>
+              <button class="btn">Draft order</button></div>
+            <div class="list-item">
+              <div class="meta"><div class="name">Schedule next visit in 4 weeks</div>
+                <div class="sub">Matches engagement cadence · agent suggested slot Nov 5</div></div>
+              <button class="btn">Schedule</button></div>
+          </div>
+
+          <div class="row" style="margin-top:16px">
+            <div class="card">
+              <h2>Identity & Contact</h2>
+              <div class="list-item"><div class="meta"><div class="name">Specialty</div>
+                <div class="sub">Medical Oncology · Hematology</div></div></div>
+              <div class="list-item"><div class="meta"><div class="name">Primary HCO</div>
+                <div class="sub">Pacific Oncology Group · Attending since 2015</div></div></div>
+              <div class="list-item"><div class="meta"><div class="name">Best time</div>
+                <div class="sub">Tue–Thu, 8:30–10:00 · In-office preferred</div></div></div>
+            </div>
+            <div class="card">
+              <h2>Products of Interest</h2>
+              <div class="list-item"><div class="meta"><div class="name">Oncuvia</div>
+                <div class="sub">Detailed 4× · last Sep 23 · Rx trend up</div></div>
+                <span class="chip good">High engagement</span></div>
+              <div class="list-item"><div class="meta"><div class="name">Neurova</div>
+                <div class="sub">Detailed 1× · last Jun 03 · opportunity</div></div>
+                <span class="chip">Nurture</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>Recent Interactions</h2>
+            <div class="list-item clickable" data-nav="visit"><div class="meta">
+              <div class="name">Sep 23 · in-office visit</div>
+              <div class="sub">Oncuvia detailed · 1 inquiry logged · positive sentiment</div></div>
+              <span class="chip good">Submitted</span></div>
+            <div class="list-item"><div class="meta">
+              <div class="name">Aug 14 · phone follow-up</div>
+              <div class="sub">Discussed prior auth · materials sent</div></div>
+              <span class="chip good">Submitted</span></div>
+            <div class="list-item"><div class="meta">
+              <div class="name">Jul 02 · in-office visit</div>
+              <div class="sub">Oncuvia + C detailed · DTP sample order</div></div>
+              <span class="chip good">Submitted</span></div>
+          </div>
+
+          <div class="row" style="margin-top:16px">
+            <div class="card">
+              <h2>Medical Inquiries</h2>
+              <div class="list-item"><div class="meta"><div class="name">Dosing in renal impairment (Oncuvia)</div>
+                <div class="sub">Captured Sep 23 · MA response ready</div></div>
+                <span class="chip warn">Deliver response</span></div>
+              <div class="list-item"><div class="meta"><div class="name">Pediatric indication (Neurova) · Aug 02</div>
+                <div class="sub">Resolved · delivered</div></div><span class="chip good">Done</span></div>
+            </div>
+            <div class="card">
+              <h2>Samples & Consent</h2>
+              <div class="list-item"><div class="meta"><div class="name">Open DTP order</div>
+                <div class="sub">Neurova · awaiting ship confirmation</div></div><span class="chip info">Open</span></div>
+              <div class="list-item"><div class="meta"><div class="name">Transfer of Consent</div>
+                <div class="sub">Active · captured 2025-07-02 · expires Jul 2026</div></div><span class="chip good">Active</span></div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <aside class="inspector">
+        <h3>Agent · Dr. Shah</h3>
+        <div class="nba-card">
+          <div class="label">Next best action</div>
+          <div class="title">Open MA response · deliver in next visit</div>
+          <div class="body">Draft talk-track prepared from the inquiry.</div>
+          <div class="act">Review</div>
+        </div>
+        <div class="nba-card">
+          <div class="label">Next best action</div>
+          <div class="title">Content: Neurova PA one-pager</div>
+          <div class="body">Likely to resonate · approved for this specialty.</div>
+          <div class="act">Add to visit</div>
+        </div>
+        <div class="agent-card">
+          <div class="label">Draft</div>
+          <div class="title">Follow-up email on Oncuvia</div>
+          <div class="body">Based on last visit's open question.</div>
+        </div>
+        <div class="agent-input">Ask about Dr. Shah…</div>
+      </aside>
+    </div>
+
+    <!-- ====================== VISITS LIST ====================== -->
+    <div class="ipad screen" id="screen-visits">
+      <div class="statusbar">
+        <span class="left"><span class="crumb" data-nav="today">Today</span><span class="crumb-sep">/</span> Visits</span>
+        <span>Week of Oct 5</span>
+      </div>
+      <aside class="sidebar">
+        <div class="brand">Rep Visit</div>
+        <div class="brand-sub">Visit-first workflow</div>
+        <div class="search">Search… </div>
+        <div class="nav-item" data-nav="today">Today</div>
+        <div class="nav-item" data-nav="accounts">Accounts</div>
+        <div class="nav-item active">Visits</div>
+        <div class="nav-sub">Upcoming · In Progress · Submitted</div>
+        <div class="nav-item">Content Library</div>
+        <div class="nav-item">Tasks</div>
+        <div class="nav-item">Insights</div>
+      </aside>
+      <main class="main">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">Visits</h1>
+            <p class="page-sub">23 scheduled this week · 1 in progress · 8 submitted</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn voice">Log past visit</button>
+            <button class="btn primary">+ Schedule</button>
+          </div>
+        </div>
+
+        <div class="filters">
+          <div class="filter active">Upcoming</div>
+          <div class="filter">In Progress <span class="chip bad" style="margin-left:4px">1</span></div>
+          <div class="filter">Submitted</div>
+          <div class="filter">1:1 only</div>
+          <div class="filter">Group visits</div>
+          <div class="filter">Overdue follow-up</div>
+        </div>
+
+        <div class="visit-group">
+          <h3>In Progress</h3>
+          <div class="visit-row" data-nav="invisit" data-nav-mode="group">
+            <div class="vtime">10:04</div>
+            <div class="vmeta">
+              <div class="name">Lunch & Learn — Pacific Oncology <span class="chip group">18</span></div>
+              <div class="sub">Started 2 hr ago · 12 of 18 signatures captured</div>
+            </div>
+            <span class="chip warn">Resume</span>
+          </div>
+        </div>
+
+        <div class="visit-group">
+          <h3>Today · Wed Oct 7</h3>
+          <div class="visit-row" data-nav="visit">
+            <div class="vtime">11:30</div>
+            <div class="vmeta">
+              <div class="name">Dr. Priya Shah · Pacific Oncology</div>
+              <div class="sub">1:1 · Detail Oncuvia · 30 min · Last visit 14d ago</div>
+            </div>
+            <span class="chip">Scheduled</span>
+          </div>
+          <div class="visit-row" data-nav="visit">
+            <div class="vtime">1:00</div>
+            <div class="vmeta">
+              <div class="name">Dr. Elena Ruiz · UCSF Mt. Zion</div>
+              <div class="sub">1:1 · Follow-up on inquiry · 20 min</div>
+            </div>
+            <span class="chip">Scheduled</span>
+          </div>
+          <div class="visit-row" data-nav="visit">
+            <div class="vtime">3:15</div>
+            <div class="vmeta">
+              <div class="name">Dr. Omar Haddad · Mission Internal Med</div>
+              <div class="sub">1:1 · 30 min</div>
+            </div>
+            <span class="chip">Scheduled</span>
+          </div>
+        </div>
+
+        <div class="visit-group">
+          <h3>Tomorrow · Thu Oct 8</h3>
+          <div class="visit-row" data-nav="visit">
+            <div class="vtime">12:00</div>
+            <div class="vmeta">
+              <div class="name">Team Lunch — Bay Pulmonary <span class="chip group">12</span></div>
+              <div class="sub">Group visit · 60 min · Oncuvia overview</div>
+            </div>
+            <span class="chip info">Group</span>
+          </div>
+          <div class="visit-row" data-nav="visit">
+            <div class="vtime">9:00</div>
+            <div class="vmeta">
+              <div class="name">Dr. Chen Wu · UCSF</div>
+              <div class="sub">1:1 · Consent renewal · 25 min</div>
+            </div>
+            <span class="chip warn">Consent due</span>
+          </div>
+        </div>
+      </main>
+      <aside class="inspector">
+        <button type="button" class="icon-btn agent-toggle" data-agent-toggle aria-label="Show or hide agent" title="Show or hide agent"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.4 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg></button>
+        <div class="inspector-rail" data-agent-toggle title="Expand agent panel">
+        </div>
+        <h3>Agent</h3>
+        <div class="nba-card">
+          <div class="label">Next best action</div>
+          <div class="title">Reorder today's route</div>
+          <div class="body">Save 18 min · 1 fewer backtrack.</div>
+          <div class="act">Apply</div>
+        </div>
+        <div class="agent-card">
+          <div class="label">Prep</div>
+          <div class="title">Brief me on all 4 today</div>
+          <div class="body">One-page past-context summary per HCP.</div>
+        </div>
+        <div class="agent-input">Ask about your schedule…</div>
+      </aside>
+    </div>
+
+    <!-- ====================== VISIT RECORD (All-Actions, no tabs; mode toggle 1:1/Group) ====================== -->
+    <!-- ====================== VISIT RECORD (single surface — IS the engagement) ====================== -->
+    <div class="ipad screen" id="screen-visit">
+      <div class="statusbar">
+        <span class="left">
+          <span class="crumb" data-nav="today">Today</span><span class="crumb-sep">/</span>
+          <span class="crumb" data-nav="visits">Visits</span><span class="crumb-sep">/</span>
+          Oct 7 · <span id="visit-crumb-type">Dr. Shah (1:1)</span>
+        </span>
+        <span>Auto-saved</span>
+      </div>
+      <aside class="sidebar">
+        <div class="brand">Rep Visit</div>
+        <div class="brand-sub">Visit-first workflow</div>
+        <div class="search">Search… </div>
+        <div class="nav-item" data-nav="today">Today</div>
+        <div class="nav-item" data-nav="accounts">Accounts</div>
+        <div class="nav-item active">Visits</div>
+        <div class="nav-item">Content Library</div>
+        <div class="nav-item">Tasks</div>
+        <div class="nav-item">Insights</div>
+      </aside>
+
+      <main class="main">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title" id="visit-title">Visit · Dr. Priya Shah</h1>
+            <p class="page-sub" id="visit-sub">Wed Oct 7 · 11:30 · Pacific Oncology · 1:1</p>
+          </div>
+          <div class="page-actions">
+            <div class="mode-toggle" data-group="visit-mode">
+              <div class="mode-opt active" data-mode="one">1:1</div>
+              <div class="mode-opt" data-mode="group">Group</div>
+            </div>
+            <button class="btn ghost" data-nav="hcp">Open HCP</button>
+            <button class="btn primary" data-nav="invisit">Start Visit</button>
+          </div>
+        </div>
+
+        <!-- 1:1 highlights -->
+        <div class="mode-pane active" data-mode-pane="one">
+          <div class="highlights">
+            <div class="cell last-touch">
+              <div class="k">Past context · last visit 14d ago</div>
+              <div class="v">Oncuvia detailed · asked about renal dosing</div>
+              <div class="vsub">MA response arrived · ready to deliver this visit</div>
+            </div>
+            <div class="cell"><div class="k">HCO</div><div class="v">Pacific Oncology</div></div>
+            <div class="cell"><div class="k">Attendees</div><div class="v">2</div><div class="vsub">incl. co-rep</div></div>
+            <div class="cell"><div class="k">Signatures</div><div class="v">0 / 2</div><div class="vsub">needed</div></div>
+          </div>
+        </div>
+
+        <!-- Group highlights -->
+        <div class="mode-pane" data-mode-pane="group">
+          <div class="highlights">
+            <div class="cell last-touch">
+              <div class="k">Group context · Lunch & Learn</div>
+              <div class="v">Pacific Oncology · 18 attendees expected</div>
+              <div class="vsub">Topic: Oncuvia clinical overview · 60 min</div>
+            </div>
+            <div class="cell"><div class="k">Attendees</div><div class="v">18</div><div class="vsub">on roster</div></div>
+            <div class="cell"><div class="k">Signatures</div><div class="v">12 / 18</div><div class="vsub">captured in-progress</div></div>
+            <div class="cell"><div class="k">Materials</div><div class="v">Oncuvia deck</div><div class="vsub">+ pocket cards</div></div>
+          </div>
+        </div>
+
+        <!-- All actions SPA — stacked cards, NO tabs -->
+        <div class="row" style="margin-top:16px">
+          <div class="card">
+            <h2>Next Best Actions <span class="chip">Agent</span></h2>
+            <div class="list-item"><div class="meta">
+              <div class="name">Deliver MA response on renal dosing</div>
+              <div class="sub">Mentioned at last visit · talk-track prepared</div></div>
+              <button class="btn primary">Open</button></div>
+            <div class="list-item"><div class="meta">
+              <div class="name">Offer Neurova sample</div>
+              <div class="sub">HCP showed interest in Jul · PA pathway available</div></div>
+              <button class="btn">Prepare</button></div>
+          </div>
+          <div class="card">
+            <h2>Visit Information <span class="chip info">Record detail</span></h2>
+            <div class="form-field">
+              <label>* Account</label>
+              <div class="input" style="align-items:flex-start">
+                <div style="flex:1">
+                  <div style="font-weight:600;color:var(--focus)">Dr. Priya Shah, MD</div>
+                  <div style="color:var(--muted);font-size:12px">Medical Doctor · Pacific Oncology</div>
+                  <div style="margin-top:6px;font-size:11px">
+                    <span style="color:var(--focus);cursor:pointer">Switch Account</span>
+                    <span style="color:var(--muted)">·</span>
+                    <span style="color:var(--focus);cursor:pointer">Actions</span>
+                  </div>
+                </div>
+                <span class="chip warn" title="This account isn't eligible for: Oncuvia · Neurova">Product Restrictions</span>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>* Place</label>
+              <div class="input" style="align-items:flex-start">
+                <div style="flex:1">
+                  <div style="font-size:12px">4150 Harbor View Dr, San Francisco, CA, US 94121</div>
+                  <div style="margin-top:4px">
+                    <span class="chip good">State</span>
+                    <span class="chip bad">DEA missing</span>
+                    <span class="chip" style="opacity:.6">SDL</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row" style="gap:8px">
+              <div class="form-field" style="flex:1">
+                <label>* Planned Start Time</label>
+                <div class="input">10/07/2026 · 11:30 AM <span style="color:var(--muted)"></span></div>
+              </div>
+              <div class="form-field" style="flex:1">
+                <label>* Planned End Time</label>
+                <div class="input">10/07/2026 · 12:00 PM <span style="color:var(--muted)"></span></div>
+              </div>
+            </div>
+            <div class="row" style="gap:8px">
+              <div class="form-field" style="flex:1">
+                <label>Record Type</label>
+                <div class="input">Call Report</div>
+              </div>
+              <div class="form-field" style="flex:1">
+                <label>Channel</label>
+                <div class="input">Face To Face</div>
+              </div>
+            </div>
+            <div class="row" style="gap:8px">
+              <div class="form-field" style="flex:1;border-bottom:0">
+                <label>Status</label>
+                <div style="font-weight:600;padding:6px 0">Draft</div>
+              </div>
+              <div class="form-field" style="flex:1;border-bottom:0">
+                <label>Confirmed</label>
+                <div style="padding:4px 0"><span class="chip good">Yes</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h2>Visit Objectives <span class="chip voice">Dictate</span></h2>
+          <div class="form-field" style="border-bottom:0">
+            <label>Primary objective</label>
+            <div class="input">Resolve renal dosing question · offer Neurova sample<span class="mic-inline">Edit by voice</span></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <h2>All actions for this visit <span class="chip">All-Actions SPA</span></h2>
+          <div class="list-item"><div class="meta"><div class="name">Content</div>
+            <div class="sub">Approved CLM · 3 decks pinned</div></div><button class="btn">Open</button></div>
+          <div class="list-item"><div class="meta"><div class="name">Product Details</div>
+            <div class="sub">Oncuvia primary · Neurova secondary</div></div><button class="btn">Open</button></div>
+          <div class="list-item"><div class="meta"><div class="name">Samples (on-site)</div>
+            <div class="sub">Signature required</div></div><button class="btn">Open</button></div>
+          <div class="list-item"><div class="meta"><div class="name">Direct to Practitioner</div>
+            <div class="sub">DTP order flow</div></div><button class="btn">Open</button></div>
+          <div class="list-item"><div class="meta"><div class="name">Marketing Items</div>
+            <div class="sub">Pocket cards, patient materials</div></div><button class="btn">Open</button></div>
+          <div class="list-item"><div class="meta"><div class="name">Medical Inquiry</div>
+            <div class="sub">Capture + route to MA</div></div><button class="btn">Open</button></div>
+          <div class="list-item"><div class="meta"><div class="name">Compliance Statement</div>
+            <div class="sub">PDMA attestation</div></div><button class="btn">Open</button></div>
+          <div class="list-item"><div class="meta"><div class="name">Close-out & Follow-ups</div>
+            <div class="sub">Reflection, rating, next-visit tasks</div></div><button class="btn">Open</button></div>
+        </div>
+      </main>
+
+      <aside class="inspector">
+        <button type="button" class="icon-btn agent-toggle" data-agent-toggle aria-label="Show or hide agent" title="Show or hide agent"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.4 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg></button>
+        <div class="inspector-rail" data-agent-toggle title="Expand agent panel">
+        </div>
+        <h3>Agent · this visit</h3>
+        <div class="nba-card">
+          <div class="label">Next best action</div>
+          <div class="title">Open talk-track for renal dosing</div>
+          <div class="body">Agent-drafted from inquiry + MA response.</div>
+          <div class="act">Open</div>
+        </div>
+        <div class="agent-card">
+          <div class="label">Voice</div>
+          <div class="title">"Add Neurova to today's samples"</div>
+          <div class="body">One-shot action — no digging through menus.</div>
+        </div>
+        <div class="agent-input">Dictate or ask…</div>
+      </aside>
+    </div>
+
+    <!-- ====================== IN-VISIT MODAL (mode-aware) ====================== -->
+    <div class="ipad screen" id="screen-invisit">
+      <div class="statusbar">
+        <span class="left">
+          <span class="crumb" data-nav="today">Today</span><span class="crumb-sep">/</span>
+          <span class="crumb" data-nav="visits">Visits</span><span class="crumb-sep">/</span>
+          <span id="invisit-crumb">Oct 7 · Dr. Shah · In-visit</span>
+        </span>
+        <span>Offline-safe · auto-saved</span>
+      </div>
+      <aside class="sidebar" style="opacity:.35; pointer-events:none">
+        <div class="brand">Rep Visit</div>
+        <div class="search">Search…</div>
+        <div class="nav-item">Today</div>
+        <div class="nav-item">Accounts</div>
+        <div class="nav-item">Visits</div>
+      </aside>
+      <main class="main" style="opacity:.08"></main>
+      <aside class="inspector" style="opacity:.08"></aside>
+
+      <!-- 1:1 Modal: Single Page No Side Panel — all actions scrollable -->
+      <div class="modal-wrap mode-pane active" data-mode-pane="one">
+        <div class="modal one-on-one">
+          <header class="modal-top">
+            <button class="btn ghost" data-nav="visits" title="Save draft and exit to Visits">Visits</button>
+            <div class="mt-title-stack">
+              <div class="title">Dr. Priya Shah</div>
+              <div class="sub">Pacific Oncology · <span class="chip">In progress · 00:14</span> <button class="sub-link" data-hcp-peek>View</button></div>
+            </div>
+            <div class="mt-actions">
+              <div class="mode-toggle" data-group="invisit-mode">
+                <div class="mode-opt active" data-mode="one">1:1</div>
+                <div class="mode-opt" data-mode="group">Group</div>
+              </div>
+              <span class="mt-rule"></span>
+              <button class="btn voice">Dictate</button>
+              <button class="btn" id="get-sig" data-action="consent">Get Signature</button>
+              <span class="mt-rule"></span>
+              <button class="btn ghost" data-nav="visits" title="Save and exit">Save Draft</button>
+              <button class="btn primary" id="submit-visit">Submit</button>
+              <span class="mt-rule"></span>
+              <button type="button" class="icon-btn" data-visit-min aria-label="Minimize" title="Minimize"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <button type="button" class="icon-btn" data-visit-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+            </div>
+          </header>
+
+          <div class="view-tabs" data-view-tabs>
+            <button class="vt active" data-view-tab="engagement">Visit Engagement</button>
+            <button class="vt" data-view-tab="content">Intelligent Content</button>
+          </div>
+
+          <div class="jump-nav" id="jump-nav">
+              <span class="j active" data-jump="s-info">Visit info</span>
+              <span class="j" data-jump="s-nba">NBA</span>
+              <span class="j" data-jump="s-products">Products</span>
+              <span class="j" data-jump="s-samples">Samples</span>
+              <span class="j" data-jump="s-dtp">DTP</span>
+              <span class="j" data-jump="s-items">Items</span>
+              <span class="j" data-jump="s-inquiry">Inquiry</span>
+              <span class="j" data-jump="s-compliance">Compliance</span>
+              <span class="j" data-jump="s-doc">Document</span>
+              <span class="j" data-jump="s-child">Child visit</span>
+              <span class="j" data-jump="s-remote">Remote</span>
+              <span class="j" data-jump="s-close">Close-out</span>
+            </div>
+
+          <section class="modal-main">
+            <div class="modal-view active" data-modal-view="engagement">
+
+            <h2 class="section-title" id="s-info">Visit Information</h2>
+            <div class="card">
+              <div class="row" style="gap:16px">
+                <div class="form-field" style="flex:1">
+                  <label>* Account</label>
+                  <div class="input" style="align-items:flex-start">
+                    <div style="flex:1">
+                      <div style="font-weight:600">Dr. Priya Shah, MD</div>
+                      <div style="color:var(--muted);font-size:12px">Medical Oncology · Pacific Oncology</div>
+                      <div style="margin-top:6px;font-size:12px;color:var(--muted)">Switch account</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-field" style="flex:1">
+                  <label>* Place</label>
+                  <div class="input" style="align-items:flex-start">
+                    <div style="flex:1">
+                      <div style="font-size:13px">4150 Harbor View Dr, San Francisco, CA 94121</div>
+                      <div style="margin-top:6px">
+                        <span class="chip">State</span>
+                        <span class="chip">DEA missing</span>
+                        <span class="chip">SDL</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row" style="gap:16px">
+                <div class="form-field" style="flex:1">
+                  <label>* Planned start</label>
+                  <div class="input">Oct 7, 2026 · 11:30 AM</div>
+                </div>
+                <div class="form-field" style="flex:1">
+                  <label>* Planned end</label>
+                  <div class="input">Oct 7, 2026 · 12:00 PM</div>
+                </div>
+              </div>
+              <div class="row" style="gap:16px">
+                <div class="form-field" style="flex:1">
+                  <label>Record type</label>
+                  <div class="input">Call Report</div>
+                </div>
+                <div class="form-field" style="flex:1">
+                  <label>Channel</label>
+                  <div class="input">Face to Face</div>
+                </div>
+              </div>
+              <div class="list-item"><div class="meta"><div class="name">Confirmed</div>
+                <div class="sub">Visit is confirmed with the account</div></div><span class="chip">Yes</span></div>
+              <div class="list-item"><div class="meta"><div class="name">Product restrictions</div>
+                <div class="sub">This account is not eligible for Oncuvia or Neurova</div></div><span class="chip">Restricted</span></div>
+            </div>
+
+            <h2 class="section-title" id="s-nba">Next Best Actions <span class="chip">Agent</span></h2>
+            <div class="card">
+              <div class="list-item"><div class="meta">
+                <div class="name">Deliver MA response · renal dosing (Oncuvia)</div>
+                <div class="sub">Talk-track prepared · opens in Intelligent Content</div></div>
+                <button class="btn primary" data-action="talktrack">Open talk-track</button></div>
+              <div class="list-item"><div class="meta">
+                <div class="name">Suggest Neurova sample</div>
+                <div class="sub">PA pathway + patient support one-pager approved</div></div>
+                <button class="btn">Prepare</button></div>
+            </div>
+
+            </div>
+
+            <div class="modal-view" data-modal-view="content">
+            <h2 class="section-title" id="s-content">Intelligent Content <span class="chip">CLM · Agent-ranked</span></h2>
+            <div class="card" data-content-list>
+              <div class="content-toolbar">
+                <div class="ct-filter active" data-cfilter="all">All · 7</div>
+                <div class="ct-filter" data-cfilter="deck">Decks</div>
+                <div class="ct-filter" data-cfilter="talk">Talk-tracks</div>
+                <div class="ct-filter" data-cfilter="pdf">One-pagers</div>
+                <div class="ct-filter" data-cfilter="vid">Videos</div>
+                <div class="ct-right">
+                  <div class="ct-toggle on"><span class="sw"></span>Approved only</div>
+                  <span>·</span>
+                  <span>Rank: <b style="color:var(--ink)">Agent</b></span>
+                </div>
+              </div>
+
+              <div class="content-row pinned" data-ctype="talk">
+                <div class="rank pinned">—</div>
+                <div class="cmain">
+                  <div class="ctitle">Oncuvia — Renal dosing talk-track <span class="chip voice">Live now</span></div>
+                  <div class="cmeta">Talk-track · PDMA-cleared v1.3 · Oct 2026 · 3 min</div>
+                  <span class="why">Agent · directly answers Dr. Shah's Sep 23 inquiry</span>
+                </div>
+                <div class="cact">
+                  <button class="btn primary" data-action="talktrack">Deliver</button>
+                </div>
+              </div>
+
+              <div class="content-row" data-ctype="deck">
+                <div class="rank">1</div>
+                <div class="cmain">
+                  <div class="ctitle">Oncuvia — Clinical overview <span class="chip good">Approved</span></div>
+                  <div class="cmeta">Deck · 12 slides · PDMA v4.2 · last used Sep 23 w/ Dr. Shah</div>
+                  <span class="why">Agent · primary brand for this visit · high-fit</span>
+                </div>
+                <div class="cact">
+                  <button class="btn">Open</button>
+                </div>
+              </div>
+
+              <div class="content-row" data-ctype="pdf">
+                <div class="rank">2</div>
+                <div class="cmain">
+                  <div class="ctitle">Neurova — Patient Support one-pager <span class="chip good">Approved</span></div>
+                  <div class="cmeta">PDF · PDMA v2.1 · 1 page · can email leave-behind</div>
+                  <span class="why">Agent · pairs with Neurova DTP order queued below</span>
+                </div>
+                <div class="cact">
+                  <button class="btn">Open</button>
+                </div>
+              </div>
+
+              <div class="content-row" data-ctype="deck">
+                <div class="rank">3</div>
+                <div class="cmain">
+                  <div class="ctitle">Neurova — PA process <span class="chip good">Approved</span></div>
+                  <div class="cmeta">Deck · 5 slides · PDMA v1.8 · referenced by 2 UCSF peers</div>
+                  <span class="why">Agent · secondary · aligns with Shah's panel</span>
+                </div>
+                <div class="cact">
+                  <button class="btn">Open</button>
+                </div>
+              </div>
+
+              <div class="content-row" data-ctype="vid">
+                <div class="rank">4</div>
+                <div class="cmain">
+                  <div class="ctitle">Oncuvia — Mechanism of action (90s) <span class="chip good">Approved</span></div>
+                  <div class="cmeta">Video · PDMA v3.0 · 90s · tap to play fullscreen</div>
+                  <span class="why">Agent · reinforces renal dosing talk-track</span>
+                </div>
+                <div class="cact">
+                  <button class="btn">Open</button>
+                </div>
+              </div>
+
+              <div class="content-row" data-ctype="pdf" style="opacity:.6">
+                <div class="rank">—</div>
+                <div class="cmain">
+                  <div class="ctitle">Oncuvia — Dosing pocket card <span class="chip warn">Expired Jul 2026</span></div>
+                  <div class="cmeta">PDF · v2.0 (superseded by v3.1 — now in Clinical overview)</div>
+                  <span class="why" >Agent · hidden by default · toggle "Approved only" off to show</span>
+                </div>
+                <div class="cact">
+                  <button class="btn" disabled style="opacity:.5">Blocked</button>
+                </div>
+              </div>
+
+              <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;font-size:12px">
+                <div style="color:var(--muted)">Agent re-ranks when you log a product or capture a new inquiry.</div>
+                <button class="btn ghost">+ Add from CLM Library</button>
+              </div>
+            </div>
+            </div>
+
+            <div class="modal-view active" data-modal-view="engagement">
+            <h2 class="section-title" id="s-products">Product Details</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Oncuvia · Oncology</div>
+                <div class="sub">Primary combination · 3 messages</div></div><span class="chip">Selected</span></div>
+              <div style="padding:4px 0 8px 12px">
+                <div class="list-item"><div class="meta"><div class="name">Convenient access to financial assistance</div>
+                  <div class="sub">Benefits message</div></div><span class="chip">Shared · Positive</span></div>
+                <div class="list-item"><div class="meta"><div class="name">Help patients navigate treatment</div>
+                  <div class="sub">Benefits message</div></div><span class="chip">Not shared</span></div>
+                <div class="list-item"><div class="meta"><div class="name">Strong safety profile in renal impairment</div>
+                  <div class="sub">Efficacy message</div></div><span class="chip">Not shared</span></div>
+              </div>
+              <div class="list-item"><div class="meta"><div class="name">Discussion</div>
+                <div class="sub">Dosing in moderate renal impairment</div></div><span class="chip">Dictated</span></div>
+              <div class="list-item"><div class="meta"><div class="name">Neurova · Supportive care</div>
+                <div class="sub">Secondary combination · not detailed yet</div></div><span class="chip">Neutral</span></div>
+              <div style="margin-top:8px;display:flex;gap:8px">
+                <button class="btn ghost">+ Add product</button>
+                <button class="btn ghost">+ Add discussion</button>
+              </div>
+            </div>
+
+            <h2 class="section-title" id="s-samples">Samples</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Oncuvia · 10mg</div>
+                <div class="sub">On-site disbursement</div></div><span class="chip">Logged</span></div>
+              <div class="row" style="gap:16px">
+                <div class="form-field" style="flex:1">
+                  <label>* Product item</label>
+                  <div class="input">Oncuvia 10mg × 7-day</div>
+                </div>
+                <div class="form-field" style="flex:1">
+                  <label>* Production batch</label>
+                  <div class="input">L45-221</div>
+                </div>
+                <div class="form-field" style="flex:1">
+                  <label>* Quantity disbursed</label>
+                  <div class="input">2</div>
+                </div>
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin:4px 0 8px">Remaining allocation · Oncuvia 10mg · 8 of 10 this visit</div>
+              <button class="btn ghost">+ Add another</button>
+              <div class="form-field">
+                <label><span style="color:var(--ink)">*</span> Your signature <button type="button" class="icon-btn plain sig-clear" aria-label="Clear signature" title="Clear"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></label>
+                <div class="pad">Please present this screen to Dr. Priya Shah for signature · Sample receipt</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:6px">Required before Submit · Get Signature stays in the header</div>
+              </div>
+            </div>
+
+            <h2 class="section-title" id="s-dtp">Direct to Practitioner</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Neurova · 50mg × 30-day</div>
+                <div class="sub">Ship to Pacific Oncology · 4150 Harbor View Dr</div></div><span class="chip">Needs signature</span></div>
+              <div class="row" style="gap:16px">
+                <div class="form-field" style="flex:1">
+                  <label>Product</label>
+                  <div class="input">Neurova 50mg</div>
+                </div>
+                <div class="form-field" style="flex:1">
+                  <label>Quantity</label>
+                  <div class="input">1</div>
+                </div>
+                <div class="form-field" style="flex:1">
+                  <label>Max per visit</label>
+                  <div class="input">2 remaining</div>
+                </div>
+              </div>
+              <button class="btn ghost">+ Add another</button>
+            </div>
+
+            <h2 class="section-title" id="s-items">Items</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Oncuvia pocket card</div>
+                <div class="sub">Leave-behind · quantity 3</div></div><span class="chip">Logged</span></div>
+              <div class="list-item"><div class="meta"><div class="name">Patient brochure</div>
+                <div class="sub">Not given this visit</div></div><span class="chip">Not logged</span></div>
+              <button class="btn ghost">+ Add item</button>
+            </div>
+
+            <h2 class="section-title" id="s-inquiry">Medical Inquiry</h2>
+            <div class="card">
+              <div class="form-field">
+                <label>Product</label>
+                <div class="input">Oncuvia<span class="mic-inline"></span></div>
+              </div>
+              <div class="form-field">
+                <label>Question (verbatim)</label>
+                <div class="input">Dosing in moderate renal impairment — current recommendation?<span class="mic-inline">Dictated</span></div>
+              </div>
+              <div class="form-field">
+                <label><span style="color:var(--ink)">*</span> Your Signature <button type="button" class="icon-btn plain sig-clear" aria-label="Clear signature" title="Clear"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></label>
+                <div class="pad">Please present this screen to Dr. Priya Shah for signature · Medical Inquiry acknowledgement</div>
+              </div>
+            </div>
+
+            <h2 class="section-title" id="s-compliance">Compliance & Consent</h2>
+            <div class="card">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:8px;font-style:italic">Conduct all calls consistent with training direction.</div>
+              <div class="list-item"><div class="meta"><div class="name"><span style="color:var(--ink)">*</span> I certify that there are no adverse events recorded in this call.</div>
+                <div class="sub">Required before Submit</div></div><span class="chip">Attested</span></div>
+              <div class="list-item"><div class="meta"><div class="name"><span style="color:var(--ink)">*</span> I understand patient privacy and will not discuss personal health information.</div>
+                <div class="sub">Required before Submit</div></div><span class="chip">Not attested</span></div>
+              <div class="list-item"><div class="meta"><div class="name">Transfer of Consent</div>
+                <div class="sub">Oncuvia · Neurova · 4 of 6 channels opted in · expires Jul 2026</div></div>
+                <div style="display:flex;gap:6px;align-items:center"><span class="chip">Valid</span><button class="btn" data-action="consent">Update Consent</button></div></div>
+            </div>
+
+            <h2 class="section-title" id="s-doc">Document ID</h2>
+            <div class="card">
+              <div class="form-field" style="border-bottom:0">
+                <label>Document ID</label>
+                <div class="input">DOC-10482</div>
+                <div style="font-size:12px;color:var(--muted);margin-top:6px">ID associated with this visit</div>
+              </div>
+            </div>
+
+            <h2 class="section-title" id="s-child">Child Visit</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Sample disbursement · Oncuvia</div>
+                <div class="sub">Linked to this call · quantity 2 · lot L45-221</div></div><span class="chip">Open</span></div>
+              <button class="btn ghost">+ Add child visit</button>
+            </div>
+
+            <h2 class="section-title" id="s-remote">Remote Visit</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Channel</div>
+                <div class="sub">Face to Face · remote engagement has not started</div></div><span class="chip">In person</span></div>
+              <div class="form-field" style="border-bottom:0">
+                <label>Meeting link</label>
+                <div class="input" style="color:var(--muted)">Save the visit to view remote engagement details</div>
+              </div>
+            </div>
+
+            <h2 class="section-title" id="s-close">Close-out</h2>
+            <div class="card">
+              <div class="form-field">
+                <label>Post-visit reflection <span class="chip voice">Agent-drafted</span></label>
+                <div class="input">HCP engaged on renal dosing · DTP sample order placed for Neurova · MA response delivered.<span class="mic-inline">Dictate changes</span></div>
+              </div>
+              <div class="form-field">
+                <label>Next visit objective</label>
+                <div class="input">Confirm Neurova shipment arrived · deliver patient-support one-pager<span class="mic-inline">Dictate</span></div>
+              </div>
+              <div class="list-item"><div class="meta"><div class="name">Schedule follow-up</div>
+                <div class="sub">Face to Face · Nov 4 · 8:30–9:00 AM · Pacific Oncology</div></div><button class="btn">Schedule</button></div>
+            </div>
+            </div>
+          </section>
+
+          <aside class="modal-agent">
+            <button type="button" class="icon-btn agent-toggle" data-agent-toggle aria-label="Show or hide agent" title="Show or hide agent"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.4 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg></button>
+            <div class="inspector-rail" data-agent-toggle title="Expand agent panel">
+            </div>
+            <h3>Agent · in-visit</h3>
+            <div class="nba-card" data-action="talktrack" id="nba-talktrack">
+              <div class="label">Next best action</div>
+              <div class="title">Share Oncuvia renal dosing talk-track</div>
+              <div class="body">Based on past context · ready to open.</div>
+              <div class="act">Open</div>
+              <span class="done-chip">Delivered</span>
+            </div>
+            <div class="nba-card" data-action="queue" id="nba-queue">
+              <div class="label">Future guidance</div>
+              <div class="title">Next discussion: patient support program</div>
+              <div class="body">High fit for Dr. Shah's panel.</div>
+              <div class="act">Queue for next visit</div>
+              <span class="done-chip">Queued for Nov 4</span>
+            </div>
+            <div class="agent-card" data-action="voice" id="nba-voice">
+              <div class="label">Voice</div>
+              <div class="title">"Log a sample for Oncuvia, qty 2"</div>
+              <div class="body">Dictate structured data directly.</div>
+              <span class="done-chip">Logged</span>
+            </div>
+            <div class="agent-input">Dictate or ask…</div>
+          </aside>
+
+          <aside class="hcp-peek" aria-label="Provider summary">
+            <div class="hcp-peek-head">
+              <div>
+                <div class="k">Provider</div>
+                <div class="who">Dr. Priya Shah, MD</div>
+                <div class="meta">Medical Oncology · Pacific Oncology</div>
+              </div>
+              <button type="button" class="icon-btn" data-hcp-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+            </div>
+            <div class="hcp-peek-body">
+              <h4>Last visit · 14 days ago</h4>
+              <div class="blurb">Detailed Oncuvia · asked about renal dosing
+                <div class="sub">Positive · materials left · MA response ready</div>
+              </div>
+              <h4>At a glance</h4>
+              <div class="line"><span class="k">Open items</span><span class="v">1 inquiry</span></div>
+              <div class="line"><span class="k">Consent</span><span class="v">Active · Jul 2026</span></div>
+              <div class="line"><span class="k">Rx trend, 90d</span><span class="v">Oncuvia 42 to 51</span></div>
+              <h4>Identity</h4>
+              <div class="line"><span class="k">Specialty</span><span class="v">Oncology · Hematology</span></div>
+              <div class="line"><span class="k">HCO</span><span class="v">Pacific Oncology</span></div>
+              <div class="line"><span class="k">Best time</span><span class="v">Tue–Thu, 8:30–10:00</span></div>
+              <h4>Products</h4>
+              <div class="line"><span class="k">Oncuvia</span><span class="v">High engagement</span></div>
+              <div class="line"><span class="k">Neurova</span><span class="v">Nurture</span></div>
+              <h4>Recent interactions</h4>
+              <div class="line"><span class="k">Sep 23</span><span class="v">In-office · Oncuvia</span></div>
+              <div class="line"><span class="k">Aug 14</span><span class="v">Phone · prior auth</span></div>
+              <div class="line"><span class="k">Jul 02</span><span class="v">In-office · DTP sample</span></div>
+              <h4>Open inquiry</h4>
+              <div class="blurb">Dosing in renal impairment (Oncuvia)
+                <div class="sub">Captured Sep 23 · MA response ready to deliver</div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- Group Modal: Side-panel attendee navigator -->
+      <div class="modal-wrap mode-pane" data-mode-pane="group">
+        <div class="modal group">
+          <header class="modal-top">
+            <button class="btn ghost" data-nav="visits" title="Save draft and exit to Visits">Visits</button>
+            <div class="mt-title-stack">
+              <div class="title">Lunch & Learn</div>
+              <div class="sub">Pacific Oncology · 18 attendees · <span class="chip">In progress · 00:14</span></div>
+            </div>
+            <div class="mt-actions">
+              <div class="mode-toggle" data-group="invisit-mode">
+                <div class="mode-opt" data-mode="one">1:1</div>
+                <div class="mode-opt active" data-mode="group">Group</div>
+              </div>
+              <span class="mt-rule"></span>
+              <button class="btn voice">Dictate</button>
+              <button class="btn" id="get-sig-group" data-action="consent">Get Signature</button>
+              <span class="mt-rule"></span>
+              <button class="btn ghost" data-nav="visits" title="Save and exit">Save Draft</button>
+              <button class="btn primary" id="submit-visit-group">Submit</button>
+              <span class="mt-rule"></span>
+              <button type="button" class="icon-btn" data-visit-min aria-label="Minimize" title="Minimize"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8h9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              <button type="button" class="icon-btn" data-visit-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+            </div>
+          </header>
+
+          <div class="view-tabs" data-view-tabs>
+            <button class="vt active" data-view-tab="engagement">Visit Engagement</button>
+            <button class="vt" data-view-tab="content">Intelligent Content</button>
+          </div>
+
+          <aside class="attendees">
+            <div class="attendees-head">
+              <div class="count">18 attendees</div>
+              <div class="progress">12 signed · 4 pending · 2 declined</div>
+              <div class="attendee-view-toggle">
+                <span class="active">Side panel</span>
+                <span>Card swipe</span>
+              </div>
+            </div>
+            <div class="attendee-row active">
+              <div class="meta"><div class="name">Dr. Priya Shah</div><div class="sub">Oncology</div></div>
+              <span class="chip good status">Signed</span></div>
+            <div class="attendee-row">
+              <div class="meta"><div class="name">Dr. Marcus Liu</div><div class="sub">Pulmonology</div></div>
+              <span class="chip good status">Signed</span></div>
+            <div class="attendee-row">
+              <div class="meta"><div class="name">Dr. Elena Ruiz</div><div class="sub">Internal Med</div></div>
+              <span class="chip warn status">Pending</span></div>
+            <div class="attendee-row">
+              <div class="meta"><div class="name">Dr. Chen Wu</div><div class="sub">Hematology</div></div>
+              <span class="chip good status">Signed</span></div>
+            <div class="attendee-row">
+              <div class="meta"><div class="name">Dr. Sofia Alvarez</div><div class="sub">Oncology</div></div>
+              <span class="chip warn status">Pending</span></div>
+            <div class="attendee-row">
+              <div class="meta"><div class="name">Dr. Hannah Weiss</div><div class="sub">Oncology</div></div>
+              <span class="chip bad status">Declined</span></div>
+            <div class="attendee-row">
+              <div class="meta"><div class="name">Dr. Kenji Tanaka</div><div class="sub">Rheumatology</div></div>
+              <span class="chip good status">Signed</span></div>
+            <div class="attendee-row">
+              <div class="meta"><div class="name">Dr. Omar Haddad</div><div class="sub">Internal Med</div></div>
+              <span class="chip warn status">Pending</span></div>
+            <div class="attendee-row">
+              <div class="meta"><div class="name">+ 10 more</div></div></div>
+            <div class="attendee-add">+ Add attendee</div>
+            <button class="btn ghost" style="margin:12px 10px 0;width:calc(100% - 20px)">Schedule Follow-up Visit</button>
+          </aside>
+
+          <section class="modal-main">
+            <div class="modal-view active" data-modal-view="engagement">
+            <div class="page-header" style="margin-bottom:16px">
+              <div>
+                <h1 class="page-title">Dr. Priya Shah · active</h1>
+                <p class="page-sub">Medical Oncology · Pacific Oncology · signed </p>
+              </div>
+              <div class="page-actions">
+                <button class="btn ghost">Prev</button>
+                <button class="btn primary">Next attendee</button>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Group-level context</h2>
+              <div class="list-item"><div class="meta"><div class="name">Event</div>
+                <div class="sub">Lunch & Learn · Oncuvia clinical overview · Pacific Oncology</div></div></div>
+              <div class="list-item"><div class="meta"><div class="name">Content shown</div>
+                <div class="sub">Oncuvia deck · Patient-support one-pager</div></div><button class="btn" data-view-tab="content">Open content</button></div>
+              <div class="list-item"><div class="meta"><div class="name"><span style="color:var(--ink)">*</span> No adverse events recorded in this call</div>
+                <div class="sub">Group PDMA attestation · "Conduct all calls consistent with training direction"</div></div><span class="chip good">Attested</span></div>
+            </div>
+
+            <div class="card">
+              <h2>Per-attendee capture · Dr. Shah</h2>
+              <div class="form-field">
+                <label>Materials given</label>
+                <div class="input">Oncuvia pocket card · patient brochure<span class="mic-inline"></span></div>
+              </div>
+              <div class="form-field">
+                <label>Notes</label>
+                <div class="input">Asked about renal dosing · follow-up planned<span class="mic-inline">Dictated</span></div>
+              </div>
+              <div class="form-field">
+                <label><span style="color:var(--ink)">*</span> Your Signature (PDMA · Sample Receipt) <span style="float:right;color:var(--muted);font-weight:400">Captured 11:42 AM</span></label>
+                <div class="pad">Captured — tap to view · "Please present this screen to Dr. Shah for signature"</div>
+                <div style="font-size:11px;color:var(--muted);margin-top:6px">I agree to the above T&C and I consent to receive communications on the preferred channels</div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Fast capture <span class="chip voice">Voice-first</span></h2>
+              <div class="list-item"><div class="meta"><div class="name">"Dr. Shah signed, materials standard set, no notes"</div>
+                <div class="sub">Voice-driven per-attendee entry · ~5 sec per attendee at scale</div></div></div>
+            </div>
+            </div>
+            <div class="modal-view" data-modal-view="content">
+              <h2 class="section-title">Intelligent Content <span class="chip">CLM</span></h2>
+              <div class="card">
+                <div class="list-item"><div class="meta"><div class="name">Oncuvia — Clinical overview</div>
+                  <div class="sub">Deck · shown to the room · PDMA v4.2</div></div><span class="chip good">Approved</span></div>
+                <div class="list-item"><div class="meta"><div class="name">Neurova — Patient Support one-pager</div>
+                  <div class="sub">Leave-behind · can email after the lunch</div></div><span class="chip good">Approved</span></div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="modal-agent">
+            <button type="button" class="icon-btn agent-toggle" data-agent-toggle aria-label="Show or hide agent" title="Show or hide agent"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.6" y="2.4" width="12.8" height="11.2" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M10.4 2.4v11.2" stroke="currentColor" stroke-width="1.4"/></svg></button>
+            <div class="inspector-rail" data-agent-toggle title="Expand agent panel">
+            </div>
+            <h3>Agent · group visit</h3>
+            <div class="nba-card">
+              <div class="label">Next best action</div>
+              <div class="title">Chase 4 pending signatures</div>
+              <div class="body">Dr. Ruiz, Alvarez, Haddad, +1 · agent can nudge via SMS post-event.</div>
+              <div class="act">Draft nudges</div>
+            </div>
+            <div class="agent-card">
+              <div class="label">Pattern</div>
+              <div class="title">Side panel or card swipe</div>
+              <div class="body">Side panel validated by concept test. Card swipe is proposed but unvalidated — toggle to compare.</div>
+            </div>
+            <div class="agent-input">Dictate or ask…</div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- ===== Action sheets (triggered by NBA / Future Guidance / Voice cards) ===== -->
+
+      <!-- Talk-track viewer -->
+      <div class="sheet-backdrop" id="sheet-talktrack">
+        <div class="sheet">
+          <header class="sheet-head">
+            <div>
+              <div class="ttl">Talk-track · Oncuvia renal dosing</div>
+              <div class="sub">Agent-drafted from Dr. Shah's open inquiry · Sep 23</div>
+            </div>
+            <button type="button" class="icon-btn close" data-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+          </header>
+          <section class="sheet-body">
+            <div class="because">
+              <b>Why this · past context:</b> Dr. Shah asked about dosing in moderate renal impairment at the Sep 23 visit. MA responded Oct 6 with the current recommendation. Deliver live, log automatically.
+            </div>
+            <h4>Key talking points</h4>
+            <ol>
+              <li>Current recommendation: <b>10 mg q24h</b> for moderate renal impairment (eGFR 30–59)</li>
+              <li>Monitoring: eGFR every 2 weeks for the first 6 weeks</li>
+              <li>Dose-adjustment criteria + when to pause therapy</li>
+            </ol>
+            <h4>Approved content</h4>
+            <div class="slide-thumb">Oncuvia — Renal dosing (approved Oct 2026, v1.3)</div>
+            <h4>Leave-behind</h4>
+            <p>Patient flyer v3 · PDMA-cleared · can email after visit.</p>
+          </section>
+          <footer class="sheet-foot">
+            <span class="foot-note">On commit: logs to Products · marks inquiry Resolved · adds to Close-out summary.</span>
+            <button class="btn" data-close>Dismiss</button>
+            <button class="btn primary" data-commit="talktrack">Mark as discussed</button>
+          </footer>
+        </div>
+      </div>
+
+      <!-- Update Consent — signature capture (Figma-sourced pattern) -->
+      <div class="sheet-backdrop" id="sheet-consent">
+        <div class="sheet" style="width:min(900px,92vw);max-height:88vh">
+          <header class="sheet-head">
+            <div style="display:flex;align-items:center;gap:10px;flex:1">
+              <button type="button" class="icon-btn plain" data-close aria-label="Back" title="Back"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.5L5.5 8 10 12.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+              <div style="flex:1;text-align:center">
+                <div class="ttl">Update Consent</div>
+                <div class="sub">Please present this screen to Dr. Priya Shah for signature</div>
+              </div>
+              <button class="btn primary" data-commit="consent">Accept</button>
+            </div>
+          </header>
+          <section class="sheet-body">
+            <h4>Summary</h4>
+            <div class="card" style="margin-bottom:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <div style="font-weight:700;font-size:14px">Oncuvia</div>
+                <span class="chip voice">New Subscription</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px 14px;font-size:12px">
+                <div><span class="chip">Add</span> Personal Email<div style="color:var(--muted);font-size:11px">priya.shah@gmail.com</div></div>
+                <div><span class="chip">On</span> Work Email<div style="color:var(--muted);font-size:11px">pshah@pacificonc.org</div></div>
+                <div><span class="chip">Add</span> Phone call<div style="color:var(--muted);font-size:11px">+1 415-471-2345</div></div>
+                <div><span class="chip">On</span> SMS<div style="color:var(--muted);font-size:11px">+1 415-471-2345</div></div>
+                <div><span class="chip">On</span> WhatsApp<div style="color:var(--muted);font-size:11px">+1 415-471-2345</div></div>
+                <div><span class="chip">Add</span> Fax<div style="color:var(--muted);font-size:11px">471-2345</div></div>
+              </div>
+            </div>
+            <div class="card" style="margin-bottom:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <div style="font-weight:700;font-size:14px">Neurova</div>
+                <span class="chip voice">New Subscription</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px 14px;font-size:12px">
+                <div><span class="chip">Add</span> Personal Email<div style="color:var(--muted);font-size:11px">priya.shah@gmail.com</div></div>
+                <div><span class="chip">On</span> Work Email<div style="color:var(--muted);font-size:11px">pshah@pacificonc.org</div></div>
+                <div><span class="chip">Add</span> Phone call<div style="color:var(--muted);font-size:11px">+1 415-471-2345</div></div>
+                <div><span class="chip">On</span> SMS<div style="color:var(--muted);font-size:11px">+1 415-471-2345</div></div>
+                <div><span class="chip">On</span> WhatsApp<div style="color:var(--muted);font-size:11px">+1 415-471-2345</div></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin:8px 0 4px">
+              <h4 style="margin:0">Terms and Conditions</h4>
+              <div style="font-size:12px;color:var(--muted)">Request a copy <span style="display:inline-block;width:28px;height:14px;border-radius:7px;background:#d1d5db;vertical-align:middle;margin-left:4px"></span></div>
+            </div>
+            <div class="because" style="margin-bottom:16px">
+              <b>Summary:</b>
+              <ul style="margin:4px 0 0 16px;padding:0;font-size:12px">
+                <li>Consent authorizes LSC to contact Dr. Shah on the selected channels about Oncuvia and Neurova.</li>
+                <li>Consent is revocable at any time via Request a copy or by replying STOP on any channel.</li>
+                <li>Consent is governed by LSC's HCP engagement policy (PDMA-aligned).</li>
+              </ul>
+            </div>
+            <div style="font-size:11px;color:var(--muted);background:#fafbfc;border:1px solid var(--line);border-radius:6px;padding:10px;max-height:120px;overflow:auto;line-height:1.5">
+              Full Terms & Conditions · HCP engagement policy, revocation rights, data handling and retention terms, lawful basis under HIPAA / state privacy regulations, LSC marketing-opt-in details, and jurisdiction-specific disclosures (CA · state DEA · SDL). Conduct all calls consistent with training direction.
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px;align-items:flex-start">
+              <div style="width:16px;height:16px;border:2px solid var(--line);border-radius:3px;flex-shrink:0;margin-top:1px"></div>
+              <div style="font-size:12px"><span style="color:var(--ink)">*</span> I agree to the above T&C and I consent to receive communications to the above subscriptions on the preferred channels.</div>
+            </div>
+            <div style="margin-top:16px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                <div><span style="color:var(--ink)">*</span> Your Signature</div>
+                <button type="button" class="icon-btn plain sig-clear" aria-label="Clear signature" title="Clear"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+              </div>
+              <div class="pad" style="height:140px;background:#fafbfc;border:1px dashed var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px;font-style:italic">Sign here · stylus or finger</div>
+            </div>
+          </section>
+          <footer class="sheet-foot">
+            <span class="foot-note">On Accept: logs TC record · updates Compliance card · emails copy if "Request a copy" is on.</span>
+            <button class="btn" data-close>Cancel</button>
+            <button class="btn primary" data-commit="consent">Accept</button>
+          </footer>
+        </div>
+      </div>
+
+      <!-- Queue for next visit -->
+      <div class="sheet-backdrop" id="sheet-queue">
+        <div class="sheet">
+          <header class="sheet-head">
+            <div>
+              <div class="ttl">Queue for next visit</div>
+              <div class="sub">Future guidance · Dr. Priya Shah</div>
+            </div>
+            <button type="button" class="icon-btn close" data-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+          </header>
+          <section class="sheet-body">
+            <div class="because">
+              <b>Topic:</b> Patient support program. <br>
+              <b>Why:</b> High fit for Dr. Shah's panel (18 eligible patients identified by Agent); 2 of her peers at UCSF discussed it in the last 30d.
+            </div>
+            <h4>Add to</h4>
+            <div class="radio-row sel" data-pick>
+              <div class="r"></div>
+              <div class="r-main">
+                <div class="name">Next visit · suggested Nov 4</div>
+                <div class="sub">Agent-matched to 4-week cadence</div>
+              </div>
+            </div>
+            <div class="radio-row" data-pick>
+              <div class="r"></div>
+              <div class="r-main">
+                <div class="name">Specific date</div>
+                <div class="sub">Pick a slot</div>
+              </div>
+            </div>
+            <div class="radio-row" data-pick>
+              <div class="r"></div>
+              <div class="r-main">
+                <div class="name">Dr. Shah's open items (no date)</div>
+                <div class="sub">Address when next in the office</div>
+              </div>
+            </div>
+            <h4>Priming note <span class="chip voice" style="margin-left:6px">Dictate</span></h4>
+            <p style="background:#fafbfc; border:1px solid var(--line); border-radius:6px; padding:8px; font-size:12px;">
+              "Open with patient support program — share the eligibility criteria and the enrollment flyer. Mention 2 UCSF peers who recently enrolled patients."
+            </p>
+          </section>
+          <footer class="sheet-foot">
+            <span class="foot-note">On commit: adds to Dr. Shah's follow-ups · appears on Today when the next visit opens.</span>
+            <button class="btn" data-close>Cancel</button>
+            <button class="btn primary" data-commit="queue">Queue</button>
+          </footer>
+        </div>
+      </div>
+
+      <!-- Voice command confirm -->
+      <div class="sheet-backdrop" id="sheet-voice">
+        <div class="sheet">
+          <header class="sheet-head">
+            <div>
+              <div class="ttl">Voice command</div>
+              <div class="sub">Confirm before logging</div>
+            </div>
+            <button type="button" class="icon-btn close" data-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+          </header>
+          <section class="sheet-body">
+            <div class="voice-wave">
+              <div class="bars">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+                <span class="bar"></span>
+              </div>
+              <div>Listening…</div>
+            </div>
+            <h4>Heard</h4>
+            <p>"Log a sample for Oncuvia, qty 2"</p>
+            <h4>Parsed</h4>
+            <div class="parsed-row"><div class="k">Product</div><div class="v">Oncuvia · 10 mg × 7-day</div></div>
+            <div class="parsed-row"><div class="k">Quantity</div><div class="v">2</div></div>
+            <div class="parsed-row"><div class="k">Lot</div><div class="v">L45-221 (last used)</div></div>
+            <div class="parsed-row"><div class="k">Signature</div><div class="v">Required — pad after confirm</div></div>
+            <div class="parsed-row"><div class="k">Recipient</div><div class="v">Dr. Priya Shah (current visit)</div></div>
+          </section>
+          <footer class="sheet-foot">
+            <span class="foot-note">On commit: adds to Samples section · opens signature pad.</span>
+            <button class="btn" data-close>Cancel</button>
+            <button class="btn primary" data-commit="voice">Confirm &amp; log</button>
+          </footer>
+        </div>
+      </div>
+    </div>
+
+    <div class="visit-dock" id="visit-dock">
+      <div>
+        <div class="who">In visit · Dr. Priya Shah</div>
+        <div class="meta">Pacific Oncology · In progress · 00:14</div>
+      </div>
+      <button type="button" class="icon-btn" data-nav="invisit" aria-label="Open visit" title="Open"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 10l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button type="button" class="icon-btn" data-visit-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <b>v2 — research-informed changes:</b>
+    <span class="pill">All-Actions SPA</span> no tabs on records · all actions visible on one page ·
+    <span class="pill">Voice-first</span> affordances throughout ·
+    <span class="pill">NBA</span> Next Best Actions in every inspector ·
+    <span class="pill">Past Context</span> last-visit summary promoted into Highlights ·
+    <span class="pill">Group mode</span> side-panel attendee navigator (validated) + card-swipe toggle (unvalidated) ·
+    Flat section rail replaces step wizard · persistent Get Signature / Save / Submit top-right.
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  // In-visit window: Minimize keeps a dock on every page. Close ends the session.
+  let visitSession = false;
+  let returnScreen = 'visits';
+
+  function activeScreenName() {
+    const s = document.querySelector('.screen.active');
+    return s ? s.id.replace('screen-', '') : 'today';
+  }
+
+  function syncDock() {
+    const dock = document.getElementById('visit-dock');
+    if (!dock) return;
+    const here = activeScreenName();
+    const show = visitSession && here !== 'invisit';
+    dock.classList.toggle('show', show);
+    if (!show) return;
+    const screen = document.querySelector('.screen.active');
+    if (screen && dock.parentElement !== screen) screen.appendChild(dock);
+    const group = document.querySelector('#screen-invisit [data-mode-pane].active')?.dataset.modePane === 'group';
+    dock.querySelector('.who').textContent = group ? 'In visit · Lunch & Learn' : 'In visit · Dr. Priya Shah';
+    dock.querySelector('.meta').textContent = group
+      ? '18 attendees · In progress · 00:14'
+      : 'Pacific Oncology · In progress · 00:14';
+  }
+
+  function closeVisit() {
+    visitSession = false;
+    const here = activeScreenName();
+    if (here === 'invisit') go(returnScreen || 'visits');
+    else syncDock();
+  }
+
+  // Top-level screen routing
+  function go(screen) {
+    const from = activeScreenName();
+    if (screen === 'invisit') {
+      if (from && from !== 'invisit') returnScreen = from;
+      visitSession = true;
+    } else {
+      returnScreen = screen;
+    }
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.nav === screen));
+    document.querySelectorAll('.screen').forEach(x => x.classList.toggle('active', x.id === 'screen-' + screen));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Reset in-visit scroll + close any open sheet when leaving the modal
+    document.querySelectorAll('.modal-main').forEach(m => m.scrollTop = 0);
+    document.querySelectorAll('.sheet-backdrop.open').forEach(s => s.classList.remove('open'));
+    syncDock();
+  }
+
+  document.body.addEventListener('click', e => {
+    if (e.target.closest('[data-visit-min]')) {
+      e.stopPropagation();
+      if (!visitSession) visitSession = true;
+      go(returnScreen || 'visits');
+      return;
+    }
+    if (e.target.closest('[data-visit-close]')) {
+      e.stopPropagation();
+      closeVisit();
+      return;
+    }
+  });
+  document.body.addEventListener('click', e => {
+    const t = e.target.closest('[data-nav]');
+    if (!t) return;
+    e.stopPropagation();
+    go(t.dataset.nav);
+    // Optional: switch mode-pane after navigation (e.g. Resume Group modal)
+    const mode = t.dataset.navMode;
+    if (mode) {
+      const screen = document.getElementById('screen-' + t.dataset.nav);
+      if (screen) {
+        screen.querySelectorAll('[data-group="invisit-mode"] [data-mode]').forEach(o =>
+          o.classList.toggle('active', o.dataset.mode === mode));
+        screen.querySelectorAll('.mode-pane').forEach(p =>
+          p.classList.toggle('active', p.dataset.modePane === mode));
+      }
+    }
+  });
+
+  // Action sheets: open on [data-action], close on [data-close] or backdrop,
+  // pick on [data-pick], commit on [data-commit]
+  document.body.addEventListener('click', e => {
+    // Ignore nothing — these handlers all look for specific hooks
+    if (e.target.closest('[data-close]')) {
+      document.querySelectorAll('.sheet-backdrop.open').forEach(s => s.classList.remove('open'));
+      return;
+    }
+    if (e.target.classList && e.target.classList.contains('sheet-backdrop')) {
+      e.target.classList.remove('open');
+      return;
+    }
+    const pick = e.target.closest('[data-pick]');
+    if (pick) {
+      pick.parentElement.querySelectorAll('[data-pick]').forEach(p => p.classList.toggle('sel', p === pick));
+      return;
+    }
+    const commit = e.target.closest('[data-commit]');
+    if (commit) {
+      const kind = commit.dataset.commit;
+      document.querySelectorAll('.sheet-backdrop.open').forEach(s => s.classList.remove('open'));
+      if (kind === 'talktrack') {
+        document.getElementById('nba-talktrack')?.classList.add('done');
+        showToast('Talk-track delivered · logged to Products · inquiry Resolved');
+      } else if (kind === 'queue') {
+        document.getElementById('nba-queue')?.classList.add('done');
+        showToast('Queued for Dr. Shah · Nov 4 · added to follow-ups');
+      } else if (kind === 'voice') {
+        document.getElementById('nba-voice')?.classList.add('done');
+        showToast('Sample logged · Oncuvia × 2 · opening signature pad');
+      } else if (kind === 'consent') {
+        showToast('Consent captured · Dr. Shah · Oncuvia + Neurova · TC active');
+      }
+      return;
+    }
+    const trigger = e.target.closest('[data-action]');
+    if (trigger && !e.target.closest('.sheet')) {
+      const sheet = document.getElementById('sheet-' + trigger.dataset.action);
+      if (sheet) {
+        e.stopPropagation();
+        sheet.classList.add('open');
+      }
+    }
+  });
+
+  // Mode toggles — can live on multiple screens; sync all with the same data-group
+  document.querySelectorAll('[data-group]').forEach(group => {
+    group.addEventListener('click', e => {
+      const opt = e.target.closest('[data-mode]');
+      if (!opt) return;
+      const groupName = group.dataset.group;
+      const mode = opt.dataset.mode;
+      // Toggle option UI across all groups with the same name
+      document.querySelectorAll(`[data-group="${groupName}"] [data-mode]`).forEach(o =>
+        o.classList.toggle('active', o.dataset.mode === mode));
+      // Show matching panes within the same screen
+      const screen = group.closest('.screen');
+      screen.querySelectorAll('.mode-pane').forEach(p =>
+        p.classList.toggle('active', p.dataset.modePane === mode));
+      // Update crumbs / titles for Visit screen
+      if (groupName === 'visit-mode') {
+        const crumb = document.getElementById('visit-crumb-type');
+        const title = document.getElementById('visit-title');
+        const sub = document.getElementById('visit-sub');
+        if (mode === 'group') {
+          crumb.textContent = 'Lunch & Learn (Group)';
+          title.textContent = 'Lunch & Learn — Pacific Oncology';
+          sub.textContent = 'Thu Oct 8 · 12:00 · Pacific Oncology · Group · 18 attendees';
+        } else {
+          crumb.textContent = 'Dr. Shah (1:1)';
+          title.textContent = 'Visit · Dr. Priya Shah';
+          sub.textContent = 'Wed Oct 7 · 11:30 · Pacific Oncology · 1:1';
+        }
+      }
+      if (groupName === 'invisit-mode') {
+        const crumb = document.getElementById('invisit-crumb');
+        crumb.textContent = mode === 'group'
+          ? 'Oct 7 · Lunch & Learn · In-visit'
+          : 'Oct 7 · Dr. Shah · In-visit';
+      }
+    });
+  });
+
+  // Intelligent Content — filter chips
+  document.querySelectorAll('[data-content-list]').forEach(list => {
+    // Filter chips
+    list.querySelectorAll('[data-cfilter]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        list.querySelectorAll('[data-cfilter]').forEach(c => c.classList.toggle('active', c === chip));
+        const type = chip.dataset.cfilter;
+        list.querySelectorAll('.content-row').forEach(r => {
+          r.style.display = (type === 'all' || r.dataset.ctype === type) ? '' : 'none';
+        });
+      });
+    });
+  });
+
+  // In-visit tabs — swap the body under the tab bar. Not a stage sequence.
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', e => {
+      const peekBtn = e.target.closest('[data-hcp-peek], [data-hcp-close]');
+      if (peekBtn) {
+        e.stopPropagation();
+        const peek = modal.querySelector('.hcp-peek');
+        const open = peekBtn.hasAttribute('data-hcp-close') ? false : !peek.classList.contains('open');
+        peek.classList.toggle('open', open);
+        modal.querySelectorAll('[data-hcp-peek]').forEach(b => b.classList.toggle('on', open));
+        return;
+      }
+      const tab = e.target.closest('[data-view-tab]');
+      if (!tab) return;
+      const name = tab.dataset.viewTab;
+      modal.querySelectorAll('[data-view-tabs] .vt').forEach(t =>
+        t.classList.toggle('active', t.dataset.viewTab === name));
+      modal.querySelectorAll('[data-modal-view]').forEach(v =>
+        v.classList.toggle('active', v.dataset.modalView === name));
+      modal.classList.toggle('is-content', name === 'content');
+      const main = modal.querySelector('.modal-main');
+      if (main) main.scrollTop = 0;
+    });
+  });
+
+  // Jump nav inside the single-page SPA — scroll only the modal-main container
+  // (never let scrollIntoView bubble up and scroll the window)
+  document.getElementById('jump-nav')?.addEventListener('click', e => {
+    const j = e.target.closest('.j');
+    if (!j) return;
+    const target = document.getElementById(j.dataset.jump);
+    if (!target) return;
+    const main = target.closest('.modal-main');
+    if (!main) return;
+    document.querySelectorAll('#jump-nav .j').forEach(x => x.classList.toggle('active', x === j));
+    main.scrollTo({ top: Math.max(0, target.offsetTop - 8), behavior: 'smooth' });
+  });
+
+  // Keep jump-nav active-chip in sync with scroll position
+  (function () {
+    const main = document.querySelector('#screen-invisit .modal.one-on-one .modal-main');
+    const nav = document.getElementById('jump-nav');
+    if (!main || !nav) return;
+    const sections = [...nav.querySelectorAll('.j')].map(j => ({
+      j, target: document.getElementById(j.dataset.jump)
+    })).filter(x => x.target);
+    main.addEventListener('scroll', () => {
+      const y = main.scrollTop + 16;
+      let currentIdx = 0;
+      for (let i = 0; i < sections.length; i++) {
+        if (sections[i].target.offsetTop <= y) currentIdx = i;
+      }
+      sections.forEach((s, i) => s.j.classList.toggle('active', i === currentIdx));
+    });
+  })();
+
+  // Submit
+  function submitVisit() {
+    showToast('Visit submitted · syncing to LSC');
+    setTimeout(() => go('today'), 400);
+  }
+  document.getElementById('submit-visit')?.addEventListener('click', submitVisit);
+  document.getElementById('submit-visit-group')?.addEventListener('click', submitVisit);
+
+  // Agent panel collapse/expand — toggle persists across all iPad screens;
+  // modal agent panels toggle only their own modal.
+  document.body.addEventListener('click', e => {
+    const toggle = e.target.closest('[data-agent-toggle]');
+    if (!toggle) return;
+    e.stopPropagation();
+    const modal = toggle.closest('.modal');
+    if (modal) {
+      modal.classList.toggle('agent-collapsed');
+      return;
+    }
+    const anyCollapsed = document.querySelector('.ipad.agent-collapsed');
+    document.querySelectorAll('.ipad').forEach(s =>
+      s.classList.toggle('agent-collapsed', !anyCollapsed));
+  });
+
+  // Accounts view toggle: Grid / Map / List
+  document.querySelectorAll('.view-toggle').forEach(group => {
+    group.addEventListener('click', e => {
+      const opt = e.target.closest('[data-view]');
+      if (!opt) return;
+      e.stopPropagation();
+      const view = opt.dataset.view;
+      group.querySelectorAll('[data-view]').forEach(o => o.classList.toggle('active', o === opt));
+      const screen = group.closest('.screen') || group.parentElement;
+      screen.querySelectorAll('.view-pane').forEach(p =>
+        p.classList.toggle('active', p.dataset.viewPane === view));
+    });
+  });
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window._toastT);
+    window._toastT = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+</script>
+</body>
+</html>
