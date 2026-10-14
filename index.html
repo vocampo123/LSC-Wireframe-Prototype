@@ -330,7 +330,7 @@
     display: flex; justify-content: center; }
   .sheet-grabber span { width: 36px; height: 5px; border-radius: 3px; background: rgba(60,60,67,.3); }
   .modal.one-on-one { grid-template-columns: 1fr 280px; grid-template-rows: auto auto auto 1fr; }
-  .modal.group       { grid-template-columns: 240px 1fr 280px; grid-template-rows: auto auto 1fr; }
+  .modal.group       { grid-template-columns: 240px 1fr 280px; grid-template-rows: auto auto auto 1fr; }
   /* Header: identity on the left, visit actions on the right, one row. */
   .modal-top { grid-column: 1 / -1; grid-row: 1; display: flex; flex-direction: row;
     align-items: center; gap: 16px; padding: 18px 16px 8px; min-height: 52px; border-bottom: 0.5px solid var(--line); min-width: 0;
@@ -355,7 +355,7 @@
   .modal-top .mt-actions .btn { padding: 6px 12px; min-height: 32px; font-size: 15px; border-radius: 10px; }
 
   /* Group modal left: attendee navigator */
-  .attendees { grid-column: 1; grid-row: 3; background: var(--rail); border-right: 1px solid var(--line);
+  .attendees { grid-column: 1; grid-row: 3 / span 2; background: var(--rail); border-right: 1px solid var(--line);
     overflow: auto; min-height: 0; display: flex; flex-direction: column; }
   .attendees-head { padding: 12px; border-bottom: 1px solid var(--line); }
   .attendees-head .count { font-weight: 700; font-size: 13px; }
@@ -374,9 +374,32 @@
   .modal-main { grid-row: 3; padding: 8px 16px 20px; overflow: auto; min-height: 0; position: relative;
     background: var(--fill); }
   .modal.one-on-one .modal-main { grid-column: 1; grid-row: 4; }
-  .modal.group      .modal-main { grid-column: 2; }
+  .modal.group      .modal-main { grid-column: 2; grid-row: 4; }
+  .modal.group      .jump-nav { grid-column: 2; grid-row: 3; }
   .modal-main h2.section-title { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; margin: 22px 4px 8px; display: flex; align-items: center; gap: 8px; }
   .modal-main h2.section-title:first-child { margin-top: 0; }
+  .review-banner { display: none; align-items: center; justify-content: space-between; gap: 12px;
+    margin: 0 0 14px; padding: 12px 14px; background: #fff; border-radius: 12px; }
+  .modal.is-review .review-banner { display: flex; }
+  .review-banner .k { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+  .review-banner .v { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .modal.is-review .modal-main .btn,
+  .modal.is-review .modal-main .mic-inline,
+  .modal.is-review .visit-tools,
+  .modal.is-review .attendee-add { display: none !important; }
+  .modal.is-review .attendee-pager .btn { display: inline-block !important; pointer-events: auto; }
+  .modal.is-review .modal-main .input,
+  .modal.is-review .modal-main input,
+  .modal.is-review .modal-main textarea,
+  .modal.is-review .modal-main select,
+  .modal.is-review .modal-main [contenteditable] {
+    pointer-events: none; background: transparent;
+  }
+  .modal.is-review .modal-agent .nba-card,
+  .modal.is-review .modal-agent .agent-card,
+  .modal.is-review .modal-agent .agent-input { pointer-events: none; opacity: .45; }
+  .modal.is-review.is-submitted .mt-actions .btn.ghost { display: none; }
+  .modal.is-submitted .btn.primary:disabled { opacity: .55; cursor: default; }
   .modal-main h2.section-title#s-products { margin-top: 20px; }
   .modal-main h2.section-title .chev { color: var(--muted); font-size: 11px; }
   .modal-main h2.section-title[hidden] { display: none !important; }
@@ -396,30 +419,39 @@
   .visit-done[hidden] { display: none !important; }
   .modal-view { display: none; }
   .modal-view.active { display: block; }
-  /* Intelligent Content is a trailing detail sheet, not a swap of the visit. */
+  /* Trailing detail sheets (Intelligent Content, Present). The visit stays underneath. */
   .content-scrim {
     display: none; position: absolute; inset: 0; z-index: 34; border: 0; padding: 0;
     background: rgba(0,0,0,.28); cursor: pointer;
   }
-  .modal.is-content .content-scrim { display: block; }
-  .modal > .modal-view[data-modal-view="content"] {
+  .modal.is-sheet .content-scrim { display: block; }
+  .modal > .modal-view[data-detail-sheet] {
     display: flex; flex-direction: column; position: absolute; top: 0; right: 0; bottom: 0;
     left: auto; width: min(480px, 100%); z-index: 36; margin: 0; background: var(--bg);
     overflow: auto; transform: translateX(100%); transition: transform .28s ease;
     pointer-events: none;
   }
-  .modal.is-content > .modal-view[data-modal-view="content"] {
+  .modal.is-sheet > .modal-view[data-detail-sheet].open {
     transform: translateX(0); pointer-events: auto;
     box-shadow: -16px 0 40px rgba(0,0,0,.18);
   }
-  body.device-phone .modal > .modal-view[data-modal-view="content"] { box-shadow: none; }
+  body.device-phone .modal > .modal-view[data-detail-sheet] { box-shadow: none; }
   .content-sheet-bar {
     position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 8px;
     padding: 12px 12px 10px; background: #fff; border-bottom: 0.5px solid var(--line);
   }
   .content-sheet-bar .ttl { font-weight: 600; font-size: 17px; letter-spacing: -0.02em; }
-  .modal > .modal-view[data-modal-view="content"] > .section-title { display: none; }
-  .modal > .modal-view[data-modal-view="content"] .card { margin: 12px 16px; }
+  .modal > .modal-view[data-detail-sheet="content"] > .section-title { display: none; }
+  .modal > .modal-view[data-detail-sheet="content"] .card { margin: 12px 16px; }
+  .modal > .modal-view[data-detail-sheet="present"] .sheet-foot,
+  .modal > .modal-view[data-detail-sheet="sample"] .sheet-foot { position: sticky; bottom: 0; }
+  .sample-lead { margin: 0 0 12px; color: var(--muted); font-size: 13px; letter-spacing: -0.01em; }
+  .sample-panel h4 { margin: 2px 0 8px; }
+  .sample-panel h4 + h4 { margin-top: 16px; }
+  .qty-step { display: flex; align-items: center; gap: 10px; }
+  .qty-step [data-qty-value] { min-width: 28px; text-align: center; font-weight: 600; font-size: 17px; }
+  .sample-left { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  .list-item[hidden] { display: none !important; }
 
   /* Intelligent Content — Agent-ranked list with reorder arrows */
   .content-toolbar { display: flex; align-items: center; gap: 6px; margin: -4px 0 10px;
@@ -486,7 +518,7 @@
   .modal-agent { grid-row: 3; border-left: 1px solid var(--line);
     background: var(--rail); padding: 14px; display: flex; flex-direction: column; gap: 10px; overflow: auto; min-height: 0; }
   .modal.one-on-one .modal-agent { grid-column: 2; grid-row: 3 / span 2; }
-  .modal.group      .modal-agent { grid-column: 3; }
+  .modal.group      .modal-agent { grid-column: 3; grid-row: 3 / span 2; }
 
   /* Provider peek — slides over the agent column without leaving the visit. */
   .hcp-peek { grid-row: 3 / span 2; grid-column: 2; width: 280px; justify-self: end; z-index: 4;
@@ -611,7 +643,18 @@
     align-items: center;
   }
   .sheet-foot .foot-note { margin-right: auto; color: var(--muted); font-size: 11px; }
-  .sheet.add-sheet { width: 420px; background: #f2f2f7; }
+  .sheet.add-sheet { width: min(420px, 100%); height: 100%; max-height: none; background: #f2f2f7;
+    border-radius: 0; box-shadow: -16px 0 40px rgba(0,0,0,.18);
+    transform: translateX(100%); transition: transform .28s ease; }
+  .sheet.add-sheet::before { display: none; }
+  #sheet-add {
+    display: flex; justify-content: flex-end; align-items: stretch; padding: 0;
+    background: transparent; visibility: hidden; pointer-events: none;
+  }
+  #sheet-add.open {
+    visibility: visible; pointer-events: auto; background: rgba(0,0,0,.28);
+  }
+  #sheet-add.open .add-sheet { transform: translateX(0); }
   .add-search { padding: 0 12px 12px; background: #f2f2f7; }
   .add-search .search { margin: 0; cursor: text; }
   .add-search .glyph { width: 18px; height: 18px; display: inline-flex; }
@@ -621,8 +664,8 @@
   .add-search input::placeholder { color: var(--muted); }
   .add-item[hidden], .add-group[hidden], .add-empty[hidden] { display: none !important; }
   .add-empty { margin: 8px 4px 0; color: var(--muted); font-size: 15px; text-align: center; }
-  .add-catalog { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
-  .add-group { background: #fff; border-radius: 12px; overflow: hidden; }
+  .add-catalog { display: flex; flex-direction: column; gap: 8px; padding: 12px; min-height: 0; }
+  .add-group { background: #fff; border-radius: 12px; overflow: hidden; flex: 0 0 auto; }
   .add-group-h { width: 100%; border: 0; background: transparent; cursor: pointer;
     display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 14px;
     font: inherit; font-size: 15px; font-weight: 500; letter-spacing: -0.02em; color: var(--ink); text-align: left; }
@@ -808,6 +851,14 @@
   .modal.agent-collapsed .modal-agent .inspector-rail { display: flex; margin-top: 36px; }
   .modal.agent-collapsed .modal-agent .agent-toggle { right: auto; left: 50%; transform: translateX(-50%); }
 
+  .summary-kind { display: none; }
+  .summary-kind.show { display: block; }
+  .saved-banner { background: #fff; border: 1px solid var(--line-soft); border-radius: 12px;
+    padding: 12px 14px; margin-bottom: 16px; display: flex; align-items: center;
+    justify-content: space-between; gap: 12px; }
+  .saved-banner .k { font-size: 12px; color: var(--muted); }
+  .saved-banner .v { font-weight: 600; letter-spacing: -0.015em; margin-top: 2px; }
+
   .screen { display: none; }
   .screen.active { display: grid; }
 
@@ -927,6 +978,7 @@
   body.device-phone .inspector-rail,
   body.device-phone .jump-nav,
   body.device-phone .visit-dock { display: none !important; }
+  body.device-phone .modal.group .jump-nav { display: flex !important; }
 
   /* Agent is a sheet, opened from the bar. */
   body.device-phone.phone-agent-open .screen.active > .inspector,
@@ -990,7 +1042,7 @@
   body.device-phone .modal.one-on-one .modal-top .sub::after { content: " · Signature open"; }
   body.device-phone .modal-top .btn { padding: 4px 10px; min-height: 30px; }
   body.device-phone .modal-top .btn.ghost { position: absolute; top: 28px; left: 12px; right: auto; }
-  body.device-phone .modal-top .btn.primary { position: absolute; top: 28px; right: 46px; }
+  body.device-phone .modal-top .btn.primary { position: absolute; top: 28px; right: 46px; font-size: 13px; padding: 4px 8px; white-space: nowrap; }
   body.device-phone .modal.group .modal-top .btn.primary { right: 84px; }
   body.device-phone .modal.group .phone-attendees {
     display: inline-flex; position: absolute; top: 27px; right: 46px; z-index: 6;
@@ -1028,10 +1080,12 @@
   body.device-phone .modal.group.phone-attendees-open .attendees { transform: translateX(0); }
   body.device-phone .modal.group .modal-top,
   body.device-phone .modal.group .view-tabs,
+  body.device-phone .modal.group .jump-nav,
   body.device-phone .modal.group .modal-main,
   body.device-phone .modal.group > .sheet-grabber { transition: transform .28s ease; }
   body.device-phone .modal.group.phone-attendees-open .modal-top,
   body.device-phone .modal.group.phone-attendees-open .view-tabs,
+  body.device-phone .modal.group.phone-attendees-open .jump-nav,
   body.device-phone .modal.group.phone-attendees-open .modal-main,
   body.device-phone .modal.group.phone-attendees-open > .sheet-grabber { transform: translateX(300px); }
   body.device-phone .modal.group.phone-attendees-open .phone-attendees-scrim {
@@ -1050,6 +1104,10 @@
   /* Sheets rise from the bottom and use the full width. */
   body.device-phone .sheet-backdrop { inset: 0; align-items: flex-end; padding: 0; }
   body.device-phone .sheet { width: 100% !important; max-height: 92%; border-radius: 16px 16px 0 0; }
+  body.device-phone #sheet-add { align-items: stretch; justify-content: flex-end; }
+  body.device-phone #sheet-add .add-sheet {
+    width: min(420px, 100%) !important; height: 100%; max-height: none; border-radius: 0;
+  }
 </style>
 </head>
 <body>
@@ -1062,6 +1120,7 @@
       <button class="tab" data-nav="visits">Visits</button>
       <button class="tab" data-nav="visit">Visit</button>
       <button class="tab" data-nav="invisit">In-Visit</button>
+      <button class="tab" data-nav="summary">Summary</button>
     </div>
     <span class="research-tag">All-Actions SPA · No tabs · Voice-first · NBA</span>
     <div class="device-switch" role="group" aria-label="Device size">
@@ -1303,7 +1362,7 @@
                 <div class="doc-avatar" aria-hidden="true">PS</div>
                 <div><div class="name">Dr. Priya Shah</div>
                 <div class="sub">Medical Oncology · Pacific Oncology</div></div></div>
-              <div class="last-touch-line">14d · on-pace · 1 inquiry pending · Rx up</div>
+              <div class="last-touch-line" id="hcp-card-touch">14d · on-pace · 1 inquiry pending · Rx up</div>
               <div class="account-meta"><span class="tier-pill a">Tier A</span><span class="chip good">On-pace</span></div>
             </div>
             <div class="account-card" data-nav="hcp">
@@ -1622,7 +1681,7 @@
 
         <!-- Highlights with Last Touch promoted -->
         <div class="highlights">
-          <div class="cell last-touch">
+          <div class="cell last-touch" id="hcp-last">
             <div class="k">Last visit · 14 days ago</div>
             <div class="v">Detailed Oncuvia · asked about renal dosing</div>
             <div class="vsub">Positive sentiment · materials left · MA response ready to share</div>
@@ -1671,7 +1730,7 @@
             </div>
           </div>
 
-          <div class="card">
+          <div class="card" id="hcp-interactions">
             <h2>Recent Interactions</h2>
             <div class="list-item clickable" data-nav="visit"><div class="meta">
               <div class="name">Sep 23 · in-office visit</div>
@@ -1769,7 +1828,7 @@
 
         <div class="visit-group">
           <h3>In Progress</h3>
-          <div class="visit-row" data-nav="invisit" data-nav-mode="group">
+          <div class="visit-row" id="visit-row-lunch" data-nav="invisit" data-nav-mode="group">
             <div class="vtime">10:04</div>
             <div class="vmeta">
               <div class="name">Lunch & Learn — Pacific Oncology <span class="chip group">18</span></div>
@@ -1789,7 +1848,7 @@
 
         <div class="visit-group">
           <h3>Today · Wed Oct 7</h3>
-          <div class="visit-row" data-nav="invisit">
+          <div class="visit-row" id="visit-row-shah" data-nav="invisit">
             <div class="vtime">11:30</div>
             <div class="doc-avatar" aria-hidden="true">PS</div>
             <div class="vmeta">
@@ -2120,13 +2179,13 @@
               <div class="mt-avatar" aria-hidden="true">PS</div>
               <div class="mt-title-stack">
                 <div class="title">Dr. Priya Shah</div>
-                <div class="sub"><span class="chip">In progress · 00:14</span> Pacific Oncology</div>
+                <div class="sub"><span class="chip">In progress · 00:14</span> Pacific Oncology <button type="button" class="sub-link" data-hcp-peek>View</button></div>
               </div>
             </div>
             <div class="mt-actions">
               <span class="still-open">Signature still open</span>
               <button class="btn ghost" data-nav="visits" title="Save and exit">Save</button>
-              <button class="btn primary" id="submit-visit">Submit</button>
+              <button class="btn primary" id="submit-visit">Review and Submit</button>
               <span class="mt-rule"></span>
               <button type="button" class="icon-btn" data-visit-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
             </div>
@@ -2134,6 +2193,7 @@
 
           <div class="view-tabs visit-tools" data-view-tabs>
             <button type="button" class="btn ghost visit-done" data-view-tab="engagement" hidden>Done</button>
+            <button type="button" class="btn primary" data-action="add" data-add-open="marketing">Add</button>
             <div class="visit-more-wrap">
               <button type="button" class="icon-btn visit-more" data-visit-more aria-haspopup="menu" aria-expanded="false" aria-label="More actions" title="More actions"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.2" cy="8" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="12.8" cy="8" r="1.15" fill="currentColor"/></svg></button>
               <div class="visit-menu" hidden>
@@ -2147,23 +2207,31 @@
           <div class="jump-nav" id="jump-nav">
             <div class="jump-scroll">
               <span class="j active" data-jump="s-info">Visit info</span>
-              <span class="j" data-jump="s-present">Presentation</span>
-              <span class="j" data-jump="s-products">Products</span>
+              <span class="j" data-jump="s-present">Presentations</span>
+              <span class="j" data-jump="s-products">Product Discussion</span>
               <span class="j" data-jump="s-samples">Samples</span>
-              <span class="j" data-jump="s-items">Items</span>
+              <span class="j" data-jump="s-dtp">Direct to Physician</span>
+              <span class="j" data-jump="s-attach">Attachments</span>
+              <span class="j" data-jump="s-items">Marketing Items</span>
+              <span class="j" data-jump="s-attendees">Attendees</span>
+              <span class="j" data-jump="s-plans">Strategic Plans</span>
               <span class="j" data-jump="s-inquiry">Inquiry</span>
               <span class="j" data-jump="s-close">Close-out</span>
-              <span class="j" data-jump="s-attendees" hidden>Attendees</span>
-              <span class="j" data-jump="s-dtp" hidden>Direct to practitioner</span>
               <span class="j" data-jump="s-compliance" hidden>Consent</span>
               <span class="j" data-jump="s-doc" hidden>Document</span>
               <span class="j" data-jump="s-child" hidden>Child visit</span>
               <span class="j" data-jump="s-remote" hidden>Remote</span>
             </div>
-            <button class="btn primary jump-add" data-action="add" data-add-open="marketing">Add</button>
           </div>
 
           <section class="modal-main">
+            <div class="review-banner">
+              <div>
+                <div class="k">Review</div>
+                <div class="v">Read only. Check the visit, then submit. Edit to change anything.</div>
+              </div>
+              <span class="chip">Read only</span>
+            </div>
             <div class="modal-view active" data-modal-view="engagement">
 
             <h2 class="section-title" id="s-info">Visit information</h2>
@@ -2217,7 +2285,7 @@
                 <div class="sub">Visit is confirmed with the account</div></div><span class="chip">Yes</span></div>
             </div>
 
-            <h2 class="section-title" id="s-present">Presentation</h2>
+            <h2 class="section-title" id="s-present">Presentations</h2>
             <div class="card">
               <div class="present-context">14 days ago she asked about renal dosing. <span>The medical answer is ready.</span></div>
               <div class="present-now">
@@ -2225,7 +2293,7 @@
                   <div class="name">Oncuvia — Renal dosing talk-track</div>
                   <div class="sub">Walk through this before asking for a sample or a signature</div>
                 </div>
-                <button class="btn primary" data-action="talktrack">Present</button>
+                <button class="btn primary" data-view-tab="present">Present</button>
               </div>
               <div class="present-alt">
                 <div class="meta">
@@ -2240,7 +2308,29 @@
             </div>
             </div>
 
-            <div class="modal-view" data-modal-view="content">
+            <div class="modal-view" data-modal-view="present" data-detail-sheet="present" data-sheet-title="Present">
+              <section class="sheet-body">
+                <div class="because">
+                  <b>Why this · past context:</b> Dr. Shah asked about dosing in moderate renal impairment at the Sep 23 visit. MA responded Oct 6 with the current recommendation. Deliver live, log automatically.
+                </div>
+                <h4>Key talking points</h4>
+                <ol>
+                  <li>Current recommendation: <b>10 mg q24h</b> for moderate renal impairment (eGFR 30–59)</li>
+                  <li>Monitoring: eGFR every 2 weeks for the first 6 weeks</li>
+                  <li>Dose-adjustment criteria + when to pause therapy</li>
+                </ol>
+                <h4>Approved content</h4>
+                <div class="slide-thumb">Oncuvia — Renal dosing (approved Oct 2026, v1.3)</div>
+                <h4>Leave-behind</h4>
+                <p>Patient flyer v3 · PDMA-cleared · can email after visit.</p>
+              </section>
+              <footer class="sheet-foot">
+                <span class="foot-note">On commit: logs to Products · marks inquiry Resolved · adds to Close-out summary.</span>
+                <button class="btn" data-view-tab="engagement">Dismiss</button>
+                <button class="btn primary" data-commit="talktrack" data-view-tab="engagement">Mark as discussed</button>
+              </footer>
+            </div>
+            <div class="modal-view" data-modal-view="content" data-detail-sheet="content" data-sheet-title="Intelligent Content">
             <h2 class="section-title" id="s-content">Content library</h2>
             <div class="card" data-content-list>
               <div class="content-toolbar">
@@ -2264,7 +2354,7 @@
                   <span class="why">Agent · directly answers Dr. Shah's Sep 23 inquiry</span>
                 </div>
                 <div class="cact">
-                  <button class="btn primary" data-action="talktrack">Deliver</button>
+                  <button class="btn primary" data-view-tab="present">Deliver</button>
                 </div>
               </div>
 
@@ -2335,11 +2425,44 @@
             </div>
             </div>
 
-            <div class="modal-view active" data-modal-view="engagement">
-            <h2 class="section-title" id="s-attendees" hidden>Attendees</h2>
-            <div class="card" id="attendees-card" hidden></div>
+            <div class="modal-view" data-modal-view="sample" data-detail-sheet="sample" data-sheet-title="Add sample" data-recipient="Dr. Priya Shah">
+              <section class="sheet-body">
+                <p class="sample-lead">On-site disbursement. Dr. Priya Shah signs after she receives it.</p>
+                <div class="card sample-panel">
+                  <h4>Who receives it</h4>
+                  <div class="radio-row sel" data-sample-who="Dr. Priya Shah">
+                    <div class="r"></div>
+                    <div class="r-main"><div class="name">Dr. Priya Shah</div><div class="sub">This visit · she signs</div></div>
+                  </div>
+                  <h4>Sample</h4>
+                  <div class="radio-row sel" data-sample-pick data-sample-name="Oncuvia 10mg" data-sample-lot="L45-221" data-sample-left="8">
+                    <div class="r"></div>
+                    <div class="r-main"><div class="name">Oncuvia 10mg × 7-day</div><div class="sub">Lot L45-221 · 8 remaining</div></div>
+                  </div>
+                  <div class="radio-row" data-sample-pick data-sample-name="Neurova 25mg" data-sample-lot="N18-044" data-sample-left="6">
+                    <div class="r"></div>
+                    <div class="r-main"><div class="name">Neurova 25mg</div><div class="sub">Lot N18-044 · 6 remaining</div></div>
+                  </div>
+                  <div class="form-field">
+                    <label>* Quantity disbursed</label>
+                    <div class="qty-step">
+                      <button type="button" class="btn ghost" data-qty="-1" aria-label="Decrease quantity">−</button>
+                      <span data-qty-value>1</span>
+                      <button type="button" class="btn ghost" data-qty="1" aria-label="Increase quantity">+</button>
+                    </div>
+                  </div>
+                  <div class="sample-left" data-sample-left-note>Remaining allocation · Oncuvia 10mg · 8 before this disbursement</div>
+                </div>
+              </section>
+              <footer class="sheet-foot">
+                <span class="foot-note">She signs on the sample after this is added.</span>
+                <button class="btn" data-view-tab="engagement">Cancel</button>
+                <button class="btn primary" data-add-sample>Add sample</button>
+              </footer>
+            </div>
 
-            <h2 class="section-title" id="s-products">Products</h2>
+            <div class="modal-view active" data-modal-view="engagement">
+            <h2 class="section-title" id="s-products">Product Discussion</h2>
             <div class="card">
               <div class="list-item"><div class="meta"><div class="name">Oncuvia · Oncology</div>
                 <div class="sub">Primary combination · 3 messages</div></div><span class="chip">Selected</span></div>
@@ -2356,7 +2479,7 @@
               <div class="list-item"><div class="meta"><div class="name">Neurova · Supportive care</div>
                 <div class="sub">Secondary combination · not detailed yet</div></div><span class="chip">Neutral</span></div>
               <div style="margin-top:8px;display:flex;gap:8px">
-                <button class="btn ghost" data-action="add" data-add-open="products">+ Add product</button>
+                <button class="btn ghost" data-section-add>+ Add product</button>
                 <button class="btn ghost">+ Add discussion</button>
               </div>
             </div>
@@ -2380,7 +2503,7 @@
                 </div>
               </div>
               <div style="font-size:12px;color:var(--muted);margin:4px 0 8px">Remaining allocation · Oncuvia 10mg · 8 of 10 this visit</div>
-              <button class="btn ghost" data-action="add" data-add-open="disbursements">+ Add another</button>
+              <button class="btn ghost" data-view-tab="sample">+ Add another</button>
               <div class="form-field">
                 <label><span style="color:var(--ink)">*</span> Your signature <button type="button" class="icon-btn plain sig-clear" aria-label="Clear signature" title="Clear"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></label>
                 <div class="pad">Hand the iPad to Dr. Shah after she agrees to the sample</div>
@@ -2388,7 +2511,7 @@
               </div>
             </div>
 
-            <h2 class="section-title" id="s-dtp" hidden>Direct to Practitioner</h2>
+            <h2 class="section-title" id="s-dtp">Direct to Physician</h2>
             <div class="card">
               <div class="list-item"><div class="meta"><div class="name">Neurova · 50mg × 30-day</div>
                 <div class="sub">Ship to Pacific Oncology · 4150 Harbor View Dr</div></div><span class="chip">Needs signature</span></div>
@@ -2406,16 +2529,39 @@
                   <div class="input">2 remaining</div>
                 </div>
               </div>
-              <button class="btn ghost" data-action="add" data-add-open="dtp">+ Add another</button>
+              <button class="btn ghost" data-section-add>+ Add another</button>
             </div>
 
-            <h2 class="section-title" id="s-items">Items</h2>
+            <h2 class="section-title" id="s-attach">Attachments</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Oncuvia clinical overview.pdf</div>
+                <div class="sub">Attached to this visit · PDMA v4.2</div></div><span class="chip">Attached</span></div>
+              <div class="list-item"><div class="meta"><div class="name">Sample receipt</div>
+                <div class="sub">Not attached yet</div></div><span class="chip">Missing</span></div>
+              <button class="btn ghost" data-section-add>+ Add attachment</button>
+            </div>
+
+            <h2 class="section-title" id="s-items">Marketing Items</h2>
             <div class="card">
               <div class="list-item"><div class="meta"><div class="name">Oncuvia pocket card</div>
                 <div class="sub">Leave-behind · quantity 3</div></div><span class="chip">Logged</span></div>
               <div class="list-item"><div class="meta"><div class="name">Patient brochure</div>
                 <div class="sub">Not given this visit</div></div><span class="chip">Not logged</span></div>
-              <button class="btn ghost" data-action="add" data-add-open="marketing">+ Add item</button>
+              <button class="btn ghost" data-section-add>+ Add item</button>
+            </div>
+
+            <h2 class="section-title" id="s-attendees">Attendees</h2>
+            <div class="card" id="attendees-card">
+              <div class="list-item"><div class="meta"><div class="name">Dr. Priya Shah</div>
+                <div class="sub">Account on this visit · Medical Oncology</div></div><span class="chip">Primary</span></div>
+              <button class="btn ghost" data-section-add>+ Add attendee</button>
+            </div>
+
+            <h2 class="section-title" id="s-plans">Strategic Plans</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Q4 Oncuvia call plan</div>
+                <div class="sub">Pacific Oncology · in progress · this visit counts toward the plan</div></div><span class="chip">Linked</span></div>
+              <button class="btn ghost" data-section-add>+ Add plan</button>
             </div>
 
             <h2 class="section-title" id="s-inquiry">Inquiry</h2>
@@ -2519,9 +2665,9 @@
               <button type="button" class="icon-btn" data-hcp-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
             </div>
             <div class="hcp-peek-body">
-              <h4>Last visit · 14 days ago</h4>
-              <div class="blurb">Detailed Oncuvia · asked about renal dosing
-                <div class="sub">Positive · materials left · MA response ready</div>
+              <h4 id="peek-last-k">Last visit · 14 days ago</h4>
+              <div class="blurb" id="peek-last-v">Detailed Oncuvia · asked about renal dosing
+                <div class="sub" id="peek-last-sub">Positive · materials left · MA response ready</div>
               </div>
               <h4>At a glance</h4>
               <div class="line"><span class="k">Open items</span><span class="v">1 inquiry</span></div>
@@ -2560,7 +2706,7 @@
               <button class="btn" id="get-sig-group" data-action="consent">Get Signature</button>
               <span class="mt-rule"></span>
               <button class="btn ghost" data-nav="visits" title="Save and exit">Save Draft</button>
-              <button class="btn primary" id="submit-visit-group">Submit</button>
+              <button class="btn primary" id="submit-visit-group">Review and Submit</button>
               <button type="button" class="icon-btn phone-attendees" data-phone-attendees aria-label="Attendees" title="Attendees"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="5.5" cy="5" r="2" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M1.8 12.6c.5-2 1.8-3 3.7-3s3.2 1 3.7 3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="11.2" cy="5.4" r="1.6" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M10.2 9.6c1.1-.2 2.2.2 2.9 1.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
               <span class="mt-rule"></span>
               <button type="button" class="icon-btn" data-visit-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
@@ -2569,6 +2715,7 @@
 
           <div class="view-tabs visit-tools" data-view-tabs>
             <button type="button" class="btn ghost visit-done" data-view-tab="engagement" hidden>Done</button>
+            <button type="button" class="btn primary" data-action="add" data-add-open="marketing">Add</button>
             <div class="visit-more-wrap">
               <button type="button" class="icon-btn visit-more" data-visit-more aria-haspopup="menu" aria-expanded="false" aria-label="More actions" title="More actions"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.2" cy="8" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="12.8" cy="8" r="1.15" fill="currentColor"/></svg></button>
               <div class="visit-menu" hidden>
@@ -2576,6 +2723,23 @@
                 <button type="button" data-visit-dictate>Dictate</button>
                 <button type="button" data-visit-followup>Schedule Follow-up Visit</button>
               </div>
+            </div>
+          </div>
+
+          <div class="jump-nav">
+            <div class="jump-scroll">
+              <span class="j active" data-jump="s-info">Visit info</span>
+              <span class="j" data-jump="s-present">Presentations</span>
+              <span class="j" data-jump="s-products">Product Discussion</span>
+              <span class="j" data-jump="s-samples">Samples</span>
+              <span class="j" data-jump="s-dtp">Direct to Physician</span>
+              <span class="j" data-jump="s-attach">Attachments</span>
+              <span class="j" data-jump="s-items">Marketing Items</span>
+              <span class="j" data-jump="s-attendees">Attendees</span>
+              <span class="j" data-jump="s-plans">Strategic Plans</span>
+              <span class="j" data-jump="s-inquiry">Inquiry</span>
+              <span class="j" data-jump="s-close">Close-out</span>
+              <span class="j" data-jump="s-compliance" hidden>Consent</span>
             </div>
           </div>
 
@@ -2624,11 +2788,18 @@
           <div class="phone-attendees-scrim" data-phone-attendees-scrim></div>
 
           <section class="modal-main">
+            <div class="review-banner">
+              <div>
+                <div class="k">Review</div>
+                <div class="v">Read only. Check the visit, then submit. Edit to change anything.</div>
+              </div>
+              <span class="chip">Read only</span>
+            </div>
             <div class="modal-view active" data-modal-view="engagement">
             <div class="page-header" style="margin-bottom:16px">
               <div>
                 <h1 class="page-title">Dr. Priya Shah · active</h1>
-                <p class="page-sub">Medical Oncology · Pacific Oncology · signed </p>
+                <p class="page-sub">Medical Oncology · Pacific Oncology · materials logged</p>
               </div>
               <div class="page-actions attendee-pager">
                 <button class="btn ghost">Prev</button>
@@ -2636,14 +2807,104 @@
               </div>
             </div>
 
+            <h2 class="section-title" data-section="s-info">Visit information</h2>
             <div class="card">
-              <h2>Group-level context</h2>
               <div class="list-item"><div class="meta"><div class="name">Event</div>
                 <div class="sub">Lunch & Learn · Oncuvia clinical overview · Pacific Oncology</div></div></div>
-              <div class="list-item"><div class="meta"><div class="name">Content shown</div>
-                <div class="sub">Oncuvia deck · Patient-support one-pager</div></div><button class="btn" data-view-tab="content">Open content</button></div>
+              <div class="list-item"><div class="meta"><div class="name">Place</div>
+                <div class="sub">4150 Harbor View Dr, San Francisco · Face to Face</div></div></div>
+              <div class="list-item"><div class="meta"><div class="name">When</div>
+                <div class="sub">Oct 7, 2026 · 12:30–1:30 · 18 attendees</div></div></div>
               <div class="list-item"><div class="meta"><div class="name"><span style="color:var(--ink)">*</span> No adverse events recorded in this call</div>
-                <div class="sub">Group PDMA attestation · "Conduct all calls consistent with training direction"</div></div><span class="chip good">Attested</span></div>
+                <div class="sub">One attestation for the room</div></div><span class="chip good">Attested</span></div>
+            </div>
+
+            <h2 class="section-title" data-section="s-present">Presentations</h2>
+            <div class="card">
+              <div class="present-now">
+                <div class="meta">
+                  <div class="name">Oncuvia — Clinical overview</div>
+                  <div class="sub">Shown to the room · 12 slides · PDMA v4.2</div>
+                </div>
+                <button class="btn primary" data-view-tab="present">Present</button>
+              </div>
+              <div class="present-alt">
+                <div class="meta">
+                  <div class="name">Neurova — Patient Support one-pager</div>
+                  <div class="sub">Leave-behind · can email after the lunch</div>
+                </div>
+                <button class="btn" data-view-tab="content">Open</button>
+              </div>
+            </div>
+
+            <h2 class="section-title" data-section="s-products">Product Discussion</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Oncuvia · Oncology</div>
+                <div class="sub">Discussed with the room · clinical overview</div></div><span class="chip">Selected</span></div>
+              <button class="btn ghost" data-section-add>+ Add product</button>
+            </div>
+
+            <h2 class="section-title" data-section="s-samples">Samples</h2>
+            <div class="card">
+              <div class="list-item" data-sample-empty><div class="meta"><div class="name">No samples for the room</div>
+                <div class="sub">Add one only for an attendee who received a sample. That person signs.</div></div></div>
+              <button class="btn ghost" data-view-tab="sample">+ Add sample</button>
+            </div>
+
+            <h2 class="section-title" data-section="s-dtp">Direct to Physician</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">No orders for the room</div>
+                <div class="sub">Add a shipment only when a physician should receive product directly</div></div></div>
+              <button class="btn ghost" data-section-add>+ Add order</button>
+            </div>
+
+            <h2 class="section-title" data-section="s-attach">Attachments</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Oncuvia clinical overview.pdf</div>
+                <div class="sub">Shown in the room · attached to the visit</div></div><span class="chip">Attached</span></div>
+              <button class="btn ghost" data-section-add>+ Add attachment</button>
+            </div>
+
+            <h2 class="section-title" data-section="s-items">Marketing Items</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Oncuvia pocket card</div>
+                <div class="sub">Leave-behind · standard set for the lunch</div></div><span class="chip">Logged</span></div>
+              <button class="btn ghost" data-section-add>+ Add item</button>
+            </div>
+
+            <h2 class="section-title" data-section="s-attendees">Attendees</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">18 attendees</div>
+                <div class="sub">Select a person in the list to log materials or a sample</div></div></div>
+              <button class="btn ghost" data-section-add>+ Add attendee</button>
+            </div>
+
+            <h2 class="section-title" data-section="s-plans">Strategic Plans</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">Q4 Oncuvia lunch plan</div>
+                <div class="sub">Pacific Oncology · this lunch counts toward the plan</div></div><span class="chip">Linked</span></div>
+              <button class="btn ghost" data-section-add>+ Add plan</button>
+            </div>
+
+            <h2 class="section-title" data-section="s-inquiry">Inquiry</h2>
+            <div class="card">
+              <div class="list-item"><div class="meta"><div class="name">No inquiry captured for the room</div>
+                <div class="sub">Use Add if a question needs a medical answer</div></div></div>
+            </div>
+
+            <h2 class="section-title" data-section="s-close">Close-out</h2>
+            <div class="card">
+              <div class="form-field">
+                <label>Post-visit reflection</label>
+                <div class="input">Oncuvia overview for 18 attendees · materials left · follow up with people still missing a note.<span class="mic-inline">Dictate changes</span></div>
+              </div>
+              <div class="list-item"><div class="meta"><div class="name">Follow-up</div>
+                <div class="sub">Chase pending attendees · email the one-pager</div></div><button class="btn">Schedule</button></div>
+            </div>
+
+            <h2 class="section-title" data-section="s-compliance" hidden>Consent</h2>
+            <div class="card" hidden>
+              <button class="btn ghost" data-section-add>+ Add</button>
             </div>
 
             <div class="card">
@@ -2657,8 +2918,8 @@
                 <div class="input">Asked about renal dosing · follow-up planned<span class="mic-inline">Dictated</span></div>
               </div>
               <div class="form-field">
-                <label><span style="color:var(--ink)">*</span> Your Signature (PDMA · Sample Receipt) <span style="float:right;color:var(--muted);font-weight:400">Captured 11:42 AM</span></label>
-                <div class="pad">Captured — tap to view · "Please present this screen to Dr. Shah for signature"</div>
+                <label>Sample signature <span style="float:right;color:var(--muted);font-weight:400">Only if a sample was given</span></label>
+                <div class="pad">Not needed for this attendee · no sample disbursed</div>
                 <div style="font-size:11px;color:var(--muted);margin-top:6px">I agree to the above T&C and I consent to receive communications on the preferred channels</div>
               </div>
             </div>
@@ -2669,7 +2930,23 @@
                 <div class="sub">Voice-driven per-attendee entry · ~5 sec per attendee at scale</div></div></div>
             </div>
             </div>
-            <div class="modal-view" data-modal-view="content">
+            <div class="modal-view" data-modal-view="present" data-detail-sheet="present" data-sheet-title="Present">
+              <section class="sheet-body">
+                <div class="because">
+                  <b>Shown to the room:</b> Oncuvia clinical overview · 12 slides · PDMA v4.2. Leave the Neurova one-pager for email after the lunch.
+                </div>
+                <h4>Approved content</h4>
+                <div class="slide-thumb">Oncuvia — Clinical overview · 12 slides</div>
+                <h4>Leave-behind</h4>
+                <p>Neurova — Patient Support one-pager · can email after the lunch.</p>
+              </section>
+              <footer class="sheet-foot">
+                <span class="foot-note">On commit: logs the deck as shown to the room.</span>
+                <button class="btn" data-view-tab="engagement">Dismiss</button>
+                <button class="btn primary" data-commit="talktrack" data-view-tab="engagement">Mark as discussed</button>
+              </footer>
+            </div>
+            <div class="modal-view" data-modal-view="content" data-detail-sheet="content" data-sheet-title="Intelligent Content">
               <h2 class="section-title">Intelligent Content <span class="chip">CLM</span></h2>
               <div class="card">
                 <div class="list-item"><div class="meta"><div class="name">Oncuvia — Clinical overview</div>
@@ -2677,6 +2954,53 @@
                 <div class="list-item"><div class="meta"><div class="name">Neurova — Patient Support one-pager</div>
                   <div class="sub">Leave-behind · can email after the lunch</div></div><span class="chip good">Approved</span></div>
               </div>
+            </div>
+            <div class="modal-view" data-modal-view="sample" data-detail-sheet="sample" data-sheet-title="Add sample">
+              <section class="sheet-body">
+                <p class="sample-lead">Add one only for an attendee who received a sample. That person signs.</p>
+                <div class="card sample-panel">
+                  <h4>Who receives it</h4>
+                  <div class="radio-row sel" data-sample-who="Dr. Priya Shah">
+                    <div class="r"></div>
+                    <div class="r-main"><div class="name">Dr. Priya Shah</div><div class="sub">Active · she signs</div></div>
+                  </div>
+                  <div class="radio-row" data-sample-who="Dr. Elena Ruiz">
+                    <div class="r"></div>
+                    <div class="r-main"><div class="name">Dr. Elena Ruiz</div><div class="sub">Pending · she signs</div></div>
+                  </div>
+                  <div class="radio-row" data-sample-who="Dr. Sofia Alvarez">
+                    <div class="r"></div>
+                    <div class="r-main"><div class="name">Dr. Sofia Alvarez</div><div class="sub">Pending · she signs</div></div>
+                  </div>
+                  <div class="radio-row" data-sample-who="Dr. Omar Haddad">
+                    <div class="r"></div>
+                    <div class="r-main"><div class="name">Dr. Omar Haddad</div><div class="sub">Pending · he signs</div></div>
+                  </div>
+                  <h4>Sample</h4>
+                  <div class="radio-row sel" data-sample-pick data-sample-name="Oncuvia 10mg" data-sample-lot="L45-221" data-sample-left="8">
+                    <div class="r"></div>
+                    <div class="r-main"><div class="name">Oncuvia 10mg × 7-day</div><div class="sub">Lot L45-221 · 8 remaining</div></div>
+                  </div>
+                  <div class="radio-row" data-sample-pick data-sample-name="Neurova 25mg" data-sample-lot="N18-044" data-sample-left="6">
+                    <div class="r"></div>
+                    <div class="r-main"><div class="name">Neurova 25mg</div><div class="sub">Lot N18-044 · 6 remaining</div></div>
+                  </div>
+                  <div class="form-field">
+                    <label>* Quantity disbursed</label>
+                    <div class="qty-step">
+                      <button type="button" class="btn ghost" data-qty="-1" aria-label="Decrease quantity">−</button>
+                      <span data-qty-value>1</span>
+                      <button type="button" class="btn ghost" data-qty="1" aria-label="Increase quantity">+</button>
+                    </div>
+                  </div>
+                  <div class="sample-left" data-sample-left-note>Remaining allocation · Oncuvia 10mg · 8 before this disbursement</div>
+                </div>
+              </section>
+              <footer class="sheet-foot">
+                <span class="foot-note">That person signs after this is added.</span>
+                <button class="btn" data-view-tab="engagement">Cancel</button>
+                <button class="btn primary" data-add-sample>Add sample</button>
+              </footer>
             </div>
           </section>
 
@@ -2687,8 +3011,8 @@
             <h3>Agent · group visit</h3>
             <div class="nba-card">
               <div class="label">Next best action</div>
-              <div class="title">Chase 4 pending signatures</div>
-              <div class="body">Dr. Ruiz, Alvarez, Haddad, +1 · agent can nudge via SMS post-event.</div>
+              <div class="title">Finish 4 attendees still open</div>
+              <div class="body">Dr. Ruiz, Alvarez, Haddad, +1 still need materials or a note.</div>
               <div class="act">Draft nudges</div>
             </div>
             <div class="agent-input">Dictate or ask…</div>
@@ -2765,40 +3089,20 @@
                 <button type="button" class="add-item" data-add-id="post-call" data-add-target="s-compliance" data-add-name="Post-call survey" data-add-sub="Visit survey · optional"><span class="plus" aria-hidden="true">+</span>Post-call survey</button>
               </div>
             </div>
-          </section>
-        </div>
-      </div>
-
-      <!-- Talk-track viewer -->
-      <div class="sheet-backdrop" id="sheet-talktrack">
-        <div class="sheet">
-          <header class="sheet-head">
-            <div>
-              <div class="ttl">Talk-track · Oncuvia renal dosing</div>
-              <div class="sub">Agent-drafted from Dr. Shah's open inquiry · Sep 23</div>
+            <div class="add-group" data-add-group="attachments">
+              <button type="button" class="add-group-h"><span class="chev" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12"><path d="M4.2 2.2L8.2 6 4.2 9.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Attachments</button>
+              <div class="add-group-body">
+                <button type="button" class="add-item" data-add-id="receipt" data-add-target="s-attach" data-add-name="Sample receipt" data-add-sub="Attachment · PDF"><span class="plus" aria-hidden="true">+</span>Sample receipt</button>
+                <button type="button" class="add-item" data-add-id="one-pager" data-add-target="s-attach" data-add-name="Neurova patient-support one-pager" data-add-sub="Attachment · PDF"><span class="plus" aria-hidden="true">+</span>Neurova patient-support one-pager</button>
+              </div>
             </div>
-            <button type="button" class="icon-btn close" data-close aria-label="Close" title="Close"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.2 4.2l7.6 7.6M11.8 4.2L4.2 11.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
-          </header>
-          <section class="sheet-body">
-            <div class="because">
-              <b>Why this · past context:</b> Dr. Shah asked about dosing in moderate renal impairment at the Sep 23 visit. MA responded Oct 6 with the current recommendation. Deliver live, log automatically.
+            <div class="add-group" data-add-group="plans">
+              <button type="button" class="add-group-h"><span class="chev" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12"><path d="M4.2 2.2L8.2 6 4.2 9.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Strategic Plans</button>
+              <div class="add-group-body">
+                <button type="button" class="add-item" data-add-id="q4-plan" data-add-target="s-plans" data-add-name="Q4 Neurova nurture plan" data-add-sub="Strategic plan · not yet linked"><span class="plus" aria-hidden="true">+</span>Q4 Neurova nurture plan</button>
+              </div>
             </div>
-            <h4>Key talking points</h4>
-            <ol>
-              <li>Current recommendation: <b>10 mg q24h</b> for moderate renal impairment (eGFR 30–59)</li>
-              <li>Monitoring: eGFR every 2 weeks for the first 6 weeks</li>
-              <li>Dose-adjustment criteria + when to pause therapy</li>
-            </ol>
-            <h4>Approved content</h4>
-            <div class="slide-thumb">Oncuvia — Renal dosing (approved Oct 2026, v1.3)</div>
-            <h4>Leave-behind</h4>
-            <p>Patient flyer v3 · PDMA-cleared · can email after visit.</p>
           </section>
-          <footer class="sheet-foot">
-            <span class="foot-note">On commit: logs to Products · marks inquiry Resolved · adds to Close-out summary.</span>
-            <button class="btn" data-close>Dismiss</button>
-            <button class="btn primary" data-commit="talktrack">Mark as discussed</button>
-          </footer>
         </div>
       </div>
 
@@ -2991,6 +3295,110 @@
       </aside>
     </div>
 
+    <div class="ipad screen" id="screen-summary">
+      <div class="statusbar">
+        <span class="left">
+          <span class="crumb" data-nav="accounts">Accounts</span><span class="crumb-sep">/</span>
+          <span class="crumb" data-nav="hcp">Dr. Priya Shah</span><span class="crumb-sep">/</span>
+          <span id="summary-crumb">Oct 7 · Dr. Shah · Submitted</span>
+        </span>
+        <span>Submitted</span>
+      </div>
+      <aside class="sidebar">
+        <div class="search"><span class="glyph" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="4.6" stroke="currentColor" stroke-width="1.6"/><path d="M12.4 12.4 16 16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>Search</div>
+        <nav class="side-nav" aria-label="Primary"></nav>
+      </aside>
+      <main class="main">
+        <div class="page-header">
+          <div>
+            <h1 class="page-title" id="summary-title">Visit summary · Dr. Priya Shah</h1>
+            <p class="page-sub" id="summary-sub">Wed Oct 7 · 11:30–12:00 · Pacific Oncology · 1:1</p>
+          </div>
+          <div class="page-actions">
+            <button class="btn primary" data-nav="hcp">View on provider</button>
+          </div>
+        </div>
+
+        <div class="saved-banner" id="summary-banner">
+          <div>
+            <div class="k" id="summary-banner-k">Not submitted yet</div>
+            <div class="v" id="summary-banner-v">Submit the visit to save this summary on Dr. Shah</div>
+          </div>
+          <span class="chip" id="summary-banner-chip">Draft</span>
+        </div>
+
+        <div class="summary-kind show" data-summary="one">
+          <h2 class="section-title">Visit information</h2>
+          <div class="card">
+            <div class="list-item"><div class="meta"><div class="name">Account</div><div class="sub">Dr. Priya Shah, MD · Medical Oncology · Pacific Oncology</div></div></div>
+            <div class="list-item"><div class="meta"><div class="name">Place</div><div class="sub">4150 Harbor View Dr, San Francisco, CA 94121</div></div></div>
+            <div class="list-item"><div class="meta"><div class="name">When</div><div class="sub">Oct 7, 2026 · 11:30–12:00 · Face to Face · Call Report · Confirmed</div></div></div>
+          </div>
+
+          <h2 class="section-title">Presentation</h2>
+          <div class="card">
+            <div class="list-item"><div class="meta"><div class="name">Oncuvia — Renal dosing talk-track</div><div class="sub">Presented · answers the Sep 23 inquiry</div></div><span class="chip good">Presented</span></div>
+            <div class="list-item"><div class="meta"><div class="name">Oncuvia — Clinical overview</div><div class="sub">12 slides · available · last used Sep 23</div></div><span class="chip">Not opened</span></div>
+          </div>
+
+          <h2 class="section-title">Products</h2>
+          <div class="card">
+            <div class="list-item"><div class="meta"><div class="name">Oncuvia · Oncology</div><div class="sub">Primary · convenient access to financial assistance shared · positive</div></div><span class="chip">Selected</span></div>
+            <div class="list-item"><div class="meta"><div class="name">Discussion</div><div class="sub">Dosing in moderate renal impairment</div></div><span class="chip">Dictated</span></div>
+            <div class="list-item"><div class="meta"><div class="name">Neurova · Supportive care</div><div class="sub">Secondary · not detailed</div></div><span class="chip">Neutral</span></div>
+          </div>
+
+          <h2 class="section-title">Samples and items</h2>
+          <div class="card">
+            <div class="list-item"><div class="meta"><div class="name">Oncuvia 10mg × 7-day</div><div class="sub">Lot L45-221 · quantity 2 · on-site · signature requested</div></div><span class="chip">Logged</span></div>
+            <div class="list-item"><div class="meta"><div class="name">Oncuvia pocket card</div><div class="sub">Leave-behind · quantity 3</div></div><span class="chip">Logged</span></div>
+            <div class="list-item"><div class="meta"><div class="name">Patient brochure</div><div class="sub">Not given this visit</div></div><span class="chip">Not logged</span></div>
+          </div>
+
+          <h2 class="section-title">Inquiry</h2>
+          <div class="card">
+            <div class="list-item"><div class="meta"><div class="name">Oncuvia · dosing in moderate renal impairment</div><div class="sub">Verbatim question captured · signature requested</div></div><span class="chip">Logged</span></div>
+          </div>
+
+          <h2 class="section-title">Close-out</h2>
+          <div class="card">
+            <div class="list-item"><div class="meta"><div class="name">Reflection</div><div class="sub">HCP engaged on renal dosing · sample logged · inquiry captured</div></div></div>
+            <div class="list-item"><div class="meta"><div class="name">Next visit</div><div class="sub">Nov 4 · 8:30–9:00 AM · confirm Neurova shipment · deliver patient-support one-pager</div></div></div>
+          </div>
+        </div>
+
+        <div class="summary-kind" data-summary="group">
+          <h2 class="section-title">Visit information</h2>
+          <div class="card">
+            <div class="list-item"><div class="meta"><div class="name">Event</div><div class="sub">Lunch &amp; Learn · Oncuvia clinical overview · Pacific Oncology</div></div></div>
+            <div class="list-item"><div class="meta"><div class="name">Attendance</div><div class="sub">18 attendees · 12 signed · 4 pending · 2 declined</div></div></div>
+            <div class="list-item"><div class="meta"><div class="name">Content shown</div><div class="sub">Oncuvia deck · Patient-support one-pager</div></div></div>
+            <div class="list-item"><div class="meta"><div class="name">Attestation</div><div class="sub">No adverse events recorded in this call</div></div><span class="chip good">Attested</span></div>
+          </div>
+
+          <h2 class="section-title">Dr. Priya Shah</h2>
+          <div class="card">
+            <div class="list-item"><div class="meta"><div class="name">Materials given</div><div class="sub">Oncuvia pocket card · patient brochure</div></div><span class="chip good">Signed</span></div>
+            <div class="list-item"><div class="meta"><div class="name">Notes</div><div class="sub">Asked about renal dosing · follow-up planned</div></div><span class="chip">Dictated</span></div>
+            <div class="list-item"><div class="meta"><div class="name">Signature</div><div class="sub">PDMA sample receipt · captured 11:42 AM</div></div><span class="chip good">Captured</span></div>
+          </div>
+        </div>
+      </main>
+      <aside class="inspector">
+        <h3>Saved visit</h3>
+        <div class="agent-card" data-nav="hcp">
+          <div class="label">Provider</div>
+          <div class="title">Dr. Priya Shah</div>
+          <div class="body">This summary is the first item under Recent interactions.</div>
+        </div>
+        <div class="nba-card">
+          <div class="label">Next visit</div>
+          <div class="title">Nov 4 · Pacific Oncology</div>
+          <div class="body">Confirm the Neurova shipment and deliver the patient-support one-pager.</div>
+        </div>
+      </aside>
+    </div>
+
     <div class="ipad screen" id="screen-stub">
       <div class="statusbar"><span class="left">9:41</span><span></span></div>
       <aside class="sidebar">
@@ -3026,7 +3434,7 @@
     <span class="pill">NBA</span> Next Best Actions in every inspector ·
     <span class="pill">Past Context</span> last-visit summary promoted into Highlights ·
     <span class="pill">Group mode</span> side-panel attendee navigator ·
-    Flat section rail replaces step wizard · persistent Get Signature / Save / Submit top-right.
+    Flat section rail replaces step wizard · persistent Get Signature / Save / Review and Submit top-right.
   </div>
 
   <div class="toast" id="toast"></div>
@@ -3079,7 +3487,8 @@
       : 'Oct 7 · Dr. Shah · In-visit';
     const modal = screen.querySelector(which === 'group' ? '.modal.group' : '.modal.one-on-one');
     if (!modal) return;
-    modal.classList.remove('is-content');
+    modal.classList.remove('is-content', 'is-sheet');
+    modal.querySelectorAll('[data-detail-sheet]').forEach(s => s.classList.remove('open'));
     modal.querySelector('.hcp-peek')?.classList.remove('open');
     modal.querySelectorAll('.visit-done').forEach(b => { b.hidden = true; });
     modal.querySelectorAll('.visit-menu').forEach(m => { m.hidden = true; });
@@ -3126,6 +3535,12 @@
     if (e.target.closest('.nav-chev')) return;
     const t = e.target.closest('[data-nav]');
     if (!t) return;
+    const reviewing = t.closest('.modal.is-review:not(.is-submitted)');
+    if (reviewing && t.classList.contains('ghost')) {
+      e.stopPropagation();
+      setVisitReview(reviewing, false);
+      return;
+    }
     e.stopPropagation();
     go(t.dataset.nav, t.dataset.navMode);
   });
@@ -3167,6 +3582,7 @@
     }
     const trigger = e.target.closest('[data-action]');
     if (trigger && !e.target.closest('.sheet')) {
+      if (trigger.dataset.action === 'add' && !trigger.closest('.visit-tools')) return;
       const sheet = document.getElementById('sheet-' + trigger.dataset.action);
       if (sheet) {
         e.stopPropagation();
@@ -3215,6 +3631,64 @@
     if (!q) addOpenSnapshot = null;
   });
 
+  function refreshSampleNote(sheet) {
+    const picked = sheet.querySelector('[data-sample-pick].sel');
+    const note = sheet.querySelector('[data-sample-left-note]');
+    if (!picked || !note) return;
+    note.textContent = 'Remaining allocation · ' + picked.dataset.sampleName + ' · ' + picked.dataset.sampleLeft + ' before this disbursement';
+  }
+  document.body.addEventListener('click', e => {
+    const sampleSheet = e.target.closest('[data-detail-sheet="sample"]');
+    if (!sampleSheet) return;
+    const pick = e.target.closest('[data-sample-pick]');
+    if (pick) {
+      sampleSheet.querySelectorAll('[data-sample-pick]').forEach(p => p.classList.toggle('sel', p === pick));
+      refreshSampleNote(sampleSheet);
+      return;
+    }
+    const who = e.target.closest('[data-sample-who]');
+    if (who) {
+      sampleSheet.querySelectorAll('[data-sample-who]').forEach(p => p.classList.toggle('sel', p === who));
+      return;
+    }
+    const qtyBtn = e.target.closest('[data-qty]');
+    if (qtyBtn) {
+      const value = sampleSheet.querySelector('[data-qty-value]');
+      const left = Number(sampleSheet.querySelector('[data-sample-pick].sel')?.dataset.sampleLeft || 8);
+      const next = Math.max(1, Math.min(left, (parseInt(value.textContent, 10) || 1) + Number(qtyBtn.dataset.qty)));
+      value.textContent = String(next);
+      return;
+    }
+    const add = e.target.closest('[data-add-sample]');
+    if (!add) return;
+    e.stopPropagation();
+    const picked = sampleSheet.querySelector('[data-sample-pick].sel');
+    const whoRow = sampleSheet.querySelector('[data-sample-who].sel');
+    if (!picked) return;
+    const recipient = whoRow?.dataset.sampleWho || sampleSheet.dataset.recipient || 'Dr. Priya Shah';
+    const qty = sampleSheet.querySelector('[data-qty-value]')?.textContent || '1';
+    const modal = add.closest('.modal');
+    const pane = modal?.closest('.mode-pane');
+    const section = pane?.querySelector('#s-samples, [data-section="s-samples"]');
+    const card = section?.nextElementSibling;
+    if (!section || !card) return;
+    const empty = card.querySelector('[data-sample-empty]');
+    if (empty) empty.hidden = true;
+    const row = document.createElement('div');
+    row.className = 'list-item';
+    row.innerHTML = '<div class="meta"><div class="name"></div><div class="sub"></div></div><span class="chip">Needs signature</span>';
+    row.querySelector('.name').textContent = picked.dataset.sampleName;
+    row.querySelector('.sub').textContent = 'On-site · ' + recipient + ' · qty ' + qty + ' · lot ' + picked.dataset.sampleLot;
+    const anchor = card.querySelector('[data-view-tab="sample"]');
+    if (anchor) anchor.before(row);
+    else card.appendChild(row);
+    modal.classList.remove('is-sheet');
+    modal.querySelectorAll('[data-detail-sheet]').forEach(s => s.classList.remove('open'));
+    showToast('Sample added · ' + picked.dataset.sampleName + ' · ' + recipient + ' signs');
+    const main = section.closest('.modal-main');
+    if (main) main.scrollTo({ top: Math.max(0, section.offsetTop - 8), behavior: 'smooth' });
+  });
+
   document.getElementById('sheet-add')?.addEventListener('click', e => {
     const head = e.target.closest('.add-group-h');
     if (head) {
@@ -3223,14 +3697,16 @@
     }
     const item = e.target.closest('.add-item');
     if (!item || item.classList.contains('added')) return;
-    const section = document.getElementById(item.dataset.addTarget);
-    const card = section?.id === 's-attendees'
-      ? document.getElementById('attendees-card')
+    const root = document.querySelector('#screen-invisit .mode-pane.active') || document;
+    const sectionId = item.dataset.addTarget;
+    const section = root.querySelector('[data-section="' + sectionId + '"]') || document.getElementById(sectionId);
+    const card = (section?.dataset.section === 's-attendees' || section?.id === 's-attendees')
+      ? (root.querySelector('[data-section="s-attendees"] + .card') || document.getElementById('attendees-card'))
       : section?.nextElementSibling;
     if (!section || !card) return;
     section.hidden = false;
     card.hidden = false;
-    const chip = document.querySelector('#jump-nav .j[data-jump="' + section.id + '"]');
+    const chip = root.querySelector('.jump-nav .j[data-jump="' + (section.dataset.section || section.id) + '"]');
     if (chip) chip.hidden = false;
     const row = document.createElement('div');
     row.className = 'list-item';
@@ -3238,7 +3714,7 @@
     row.innerHTML = '<div class="meta"><div class="name"></div><div class="sub"></div></div><span class="chip">Added</span>';
     row.querySelector('.name').textContent = item.dataset.addName;
     row.querySelector('.sub').textContent = item.dataset.addSub;
-    const anchor = card.querySelector('[data-action="add"]');
+    const anchor = card.querySelector('[data-section-add]');
     if (anchor && anchor.parentElement !== card) anchor.parentElement.before(row);
     else if (anchor) anchor.before(row);
     else card.appendChild(row);
@@ -3246,7 +3722,8 @@
     item.querySelector('.plus').textContent = '✓';
     const place = section.querySelector ? section.textContent.trim() : 'visit';
     showToast('Added ' + item.dataset.addName + ' · ' + place);
-    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const main = section.closest('.modal-main');
+    if (main) main.scrollTo({ top: Math.max(0, section.offsetTop - 8), behavior: 'smooth' });
   });
 
   // Mode toggles — can live on multiple screens; sync all with the same data-group
@@ -3304,24 +3781,30 @@
     });
   });
 
-  // Intelligent Content slides in from the right. The visit, including Add, stays underneath.
+  // Detail sheets slide in from the right. The visit, including Add, stays underneath.
   document.querySelectorAll('.modal').forEach(modal => {
-    const content = modal.querySelector('[data-modal-view="content"]');
-    if (!content) return;
+    const sheets = modal.querySelectorAll('[data-detail-sheet]');
+    if (!sheets.length) return;
     const scrim = document.createElement('button');
     scrim.type = 'button';
     scrim.className = 'content-scrim';
     scrim.dataset.viewTab = 'engagement';
-    scrim.setAttribute('aria-label', 'Close Intelligent Content');
+    scrim.setAttribute('aria-label', 'Close');
     modal.appendChild(scrim);
-    const bar = document.createElement('div');
-    bar.className = 'content-sheet-bar';
-    bar.innerHTML = '<button type="button" class="icon-btn" data-view-tab="engagement" aria-label="Back" title="Back"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.2L5.2 8 10 12.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="ttl">Intelligent Content</div>';
-    content.prepend(bar);
-    modal.appendChild(content);
+    sheets.forEach(sheet => {
+      const bar = document.createElement('div');
+      bar.className = 'content-sheet-bar';
+      const title = document.createElement('div');
+      title.className = 'ttl';
+      title.textContent = sheet.dataset.sheetTitle || 'Details';
+      bar.innerHTML = '<button type="button" class="icon-btn" data-view-tab="engagement" aria-label="Back" title="Back"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3.2L5.2 8 10 12.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
+      bar.appendChild(title);
+      sheet.prepend(bar);
+      modal.appendChild(sheet);
+    });
   });
 
-  // In-visit tabs — content opens as a trailing sheet. Engagement stays in place.
+  // In-visit tabs — content and present open as trailing sheets. Engagement stays in place.
   document.querySelectorAll('.modal').forEach(modal => {
     modal.addEventListener('click', e => {
       const peekBtn = e.target.closest('[data-hcp-peek], [data-hcp-close]');
@@ -3336,36 +3819,49 @@
       const tab = e.target.closest('[data-view-tab]');
       if (!tab) return;
       const name = tab.dataset.viewTab;
-      modal.classList.toggle('is-content', name === 'content');
+      const sheetName = (name === 'content' || name === 'present' || name === 'sample') ? name : '';
+      modal.classList.toggle('is-sheet', !!sheetName);
+      modal.classList.remove('is-content');
       modal.querySelector('[data-modal-view="engagement"]')?.classList.add('active');
       modal.querySelectorAll('.visit-done').forEach(b => { b.hidden = true; });
       modal.querySelectorAll('.visit-menu').forEach(m => { m.hidden = true; });
       modal.querySelectorAll('[data-visit-more]').forEach(b => b.setAttribute('aria-expanded', 'false'));
-      const sheet = modal.querySelector('[data-modal-view="content"]');
-      if (sheet && name === 'content') sheet.scrollTop = 0;
+      modal.querySelectorAll('[data-detail-sheet]').forEach(sheet => {
+        const on = sheet.dataset.detailSheet === sheetName;
+        sheet.classList.toggle('open', on);
+        if (on) {
+          sheet.scrollTop = 0;
+          if (sheetName === 'sample') {
+            document.getElementById('sheet-add')?.classList.remove('open');
+            const qty = sheet.querySelector('[data-qty-value]');
+            if (qty) qty.textContent = '1';
+            refreshSampleNote(sheet);
+          }
+        }
+      });
     });
   });
 
-  // Jump nav inside the single-page SPA — scroll only the modal-main container
-  // (never let scrollIntoView bubble up and scroll the window)
-  document.getElementById('jump-nav')?.addEventListener('click', e => {
-    const j = e.target.closest('.j');
-    if (!j) return;
-    const target = document.getElementById(j.dataset.jump);
-    if (!target) return;
-    const main = target.closest('.modal-main');
+  // Jump nav — each visit modal scrolls its own main column.
+  function jumpTarget(nav, id) {
+    const modal = nav.closest('.modal');
+    return modal?.querySelector('[data-section="' + id + '"]') || document.getElementById(id);
+  }
+  document.querySelectorAll('.jump-nav').forEach(nav => {
+    nav.addEventListener('click', e => {
+      const j = e.target.closest('.j');
+      if (!j) return;
+      const target = jumpTarget(nav, j.dataset.jump);
+      if (!target) return;
+      const main = target.closest('.modal-main');
+      if (!main) return;
+      nav.querySelectorAll('.j').forEach(x => x.classList.toggle('active', x === j));
+      main.scrollTo({ top: Math.max(0, target.offsetTop - 8), behavior: 'smooth' });
+    });
+    const main = nav.closest('.modal')?.querySelector(':scope > .modal-main');
     if (!main) return;
-    document.querySelectorAll('#jump-nav .j').forEach(x => x.classList.toggle('active', x === j));
-    main.scrollTo({ top: Math.max(0, target.offsetTop - 8), behavior: 'smooth' });
-  });
-
-  // Keep jump-nav active-chip in sync with scroll position
-  (function () {
-    const main = document.querySelector('#screen-invisit .modal.one-on-one .modal-main');
-    const nav = document.getElementById('jump-nav');
-    if (!main || !nav) return;
     const sections = [...nav.querySelectorAll('.j')].map(j => ({
-      j, target: document.getElementById(j.dataset.jump)
+      j, target: jumpTarget(nav, j.dataset.jump)
     })).filter(x => x.target);
     main.addEventListener('scroll', () => {
       const y = main.scrollTop + 16;
@@ -3377,12 +3873,142 @@
       }
       sections.forEach((s, i) => s.j.classList.toggle('active', i === currentIdx));
     });
-  })();
+  });
 
   // Submit
+  const SUMMARY = {
+    one: {
+      title: 'Visit summary · Dr. Priya Shah',
+      sub: 'Wed Oct 7 · 11:30–12:00 · Pacific Oncology · 1:1',
+      crumb: 'Oct 7 · Dr. Shah · Submitted',
+      savedName: 'Oct 7 · in-office visit',
+      savedSub: 'Oncuvia renal dosing · sample qty 2 · inquiry logged · follow-up Nov 4',
+      lastK: 'Last visit · today',
+      lastV: 'Detailed Oncuvia renal dosing · sample logged',
+      lastSub: 'Inquiry captured · follow-up Nov 4 · positive',
+      peek: 'Detailed Oncuvia renal dosing · sample logged',
+      peekSub: 'Inquiry captured · follow-up Nov 4',
+      cardLine: 'Today · Oncuvia renal dosing · sample logged · inquiry open'
+    },
+    group: {
+      title: 'Visit summary · Lunch & Learn',
+      sub: 'Wed Oct 7 · Pacific Oncology · 18 attendees',
+      crumb: 'Oct 7 · Lunch & Learn · Submitted',
+      savedName: 'Oct 7 · Lunch & Learn',
+      savedSub: 'Signed · Oncuvia pocket card and brochure · follow-up on renal dosing',
+      lastK: 'Last visit · today',
+      lastV: 'Lunch & Learn · signed · materials left',
+      lastSub: 'Asked about renal dosing · follow-up planned',
+      peek: 'Lunch & Learn · signed · materials left',
+      peekSub: 'Asked about renal dosing · follow-up planned',
+      cardLine: 'Today · Lunch & Learn · signed · materials left'
+    }
+  };
+  function showSummary(kind) {
+    const copy = SUMMARY[kind] || SUMMARY.one;
+    const title = document.getElementById('summary-title');
+    const sub = document.getElementById('summary-sub');
+    const crumb = document.getElementById('summary-crumb');
+    if (title) title.textContent = copy.title;
+    if (sub) sub.textContent = copy.sub;
+    if (crumb) crumb.textContent = copy.crumb;
+    const bannerK = document.getElementById('summary-banner-k');
+    const bannerV = document.getElementById('summary-banner-v');
+    const bannerChip = document.getElementById('summary-banner-chip');
+    if (bannerK) bannerK.textContent = 'Saved on the provider';
+    if (bannerV) bannerV.textContent = 'Dr. Priya Shah · Recent interactions';
+    if (bannerChip) {
+      bannerChip.className = 'chip good';
+      bannerChip.textContent = 'Submitted';
+    }
+    document.querySelectorAll('[data-summary]').forEach(el => {
+      el.classList.toggle('show', el.dataset.summary === kind);
+    });
+  }
+  function saveVisitOnProvider(kind) {
+    const copy = SUMMARY[kind] || SUMMARY.one;
+    const card = document.getElementById('hcp-interactions');
+    if (card) {
+      let row = document.getElementById('hcp-saved-visit');
+      if (!row) {
+        row = document.createElement('div');
+        row.id = 'hcp-saved-visit';
+        row.className = 'list-item clickable';
+        row.dataset.nav = 'summary';
+        row.innerHTML = '<div class="meta"><div class="name"></div><div class="sub"></div></div><span class="chip good">Submitted</span>';
+        card.querySelector('h2')?.insertAdjacentElement('afterend', row);
+      }
+      row.querySelector('.name').textContent = copy.savedName;
+      row.querySelector('.sub').textContent = copy.savedSub;
+    }
+    const last = document.getElementById('hcp-last');
+    if (last) {
+      last.querySelector('.k').textContent = copy.lastK;
+      last.querySelector('.v').textContent = copy.lastV;
+      last.querySelector('.vsub').textContent = copy.lastSub;
+    }
+    const touch = document.getElementById('hcp-card-touch');
+    if (touch) touch.textContent = copy.cardLine;
+    const peekK = document.getElementById('peek-last-k');
+    const peekV = document.getElementById('peek-last-v');
+    const peekSub = document.getElementById('peek-last-sub');
+    if (peekK) peekK.textContent = copy.lastK;
+    if (peekV) peekV.childNodes[0].textContent = copy.peek;
+    if (peekSub) peekSub.textContent = copy.peekSub;
+    const statusRow = document.getElementById(kind === 'group' ? 'visit-row-lunch' : 'visit-row-shah');
+    const chip = statusRow?.querySelector(':scope > .chip');
+    if (chip) {
+      chip.className = 'chip good';
+      chip.textContent = 'Submitted';
+    }
+  }
+  function setVisitReview(modal, on) {
+    modal.classList.toggle('is-review', on);
+    const primary = modal.querySelector('#submit-visit, #submit-visit-group');
+    const save = modal.querySelector('.mt-actions .btn.ghost');
+    const note = modal.querySelector('.review-banner .v');
+    if (on) {
+      modal.classList.remove('is-sheet');
+      modal.querySelectorAll('[data-detail-sheet]').forEach(s => s.classList.remove('open'));
+      modal.querySelectorAll('[data-modal-view]').forEach(v =>
+        v.classList.toggle('active', v.dataset.modalView === 'engagement'));
+      const main = modal.querySelector(':scope > .modal-main');
+      if (main) main.scrollTop = 0;
+      if (primary && !modal.classList.contains('is-submitted')) primary.textContent = 'Submit';
+      if (save && !save.dataset.savedLabel) save.dataset.savedLabel = save.textContent.trim();
+      if (save) save.textContent = 'Edit';
+      if (note) note.textContent = 'Read only. Check the visit, then submit. Edit to change anything.';
+      showToast('Review the visit · read only');
+    } else {
+      if (primary) primary.textContent = 'Review and Submit';
+      if (save && save.dataset.savedLabel) save.textContent = save.dataset.savedLabel;
+    }
+  }
   function submitVisit() {
-    showToast('Visit submitted · syncing to LSC');
-    setTimeout(() => go('today'), 400);
+    const modal = document.querySelector('#screen-invisit [data-mode-pane].active .modal');
+    if (!modal || modal.classList.contains('is-submitted')) return;
+    if (!modal.classList.contains('is-review')) {
+      setVisitReview(modal, true);
+      return;
+    }
+    const kind = modal.classList.contains('group') ? 'group' : 'one';
+    visitSession = false;
+    showSummary(kind);
+    saveVisitOnProvider(kind);
+    modal.classList.add('is-submitted');
+    const primary = modal.querySelector('#submit-visit, #submit-visit-group');
+    if (primary) {
+      primary.textContent = 'Submitted';
+      primary.disabled = true;
+    }
+    const note = modal.querySelector('.review-banner .v');
+    if (note) note.textContent = 'Submitted. This visit is saved as you reviewed it.';
+    const chip = modal.querySelector('.review-banner .chip');
+    if (chip) {
+      chip.className = 'chip good';
+      chip.textContent = 'Submitted';
+    }
+    showToast('Visit submitted · saved on Dr. Shah');
   }
   document.getElementById('submit-visit')?.addEventListener('click', submitVisit);
   document.getElementById('get-sig')?.addEventListener('click', () => {
@@ -3455,6 +4081,7 @@
     'screen-visits': 'visits',
     'screen-visit': 'visits',
     'screen-invisit': 'visits',
+    'screen-summary': 'providers',
     'screen-tasks': 'tasks'
   };
   const openNavGroups = new Set();
@@ -3610,6 +4237,7 @@
     'screen-visits': { title: 'Visits', tab: 'visits' },
     'screen-visit': { title: 'Dr. Priya Shah', tab: 'visits', back: 'visits' },
     'screen-invisit': { title: 'Visit', tab: '' },
+    'screen-summary': { title: 'Visit summary', tab: 'accounts', back: 'hcp' },
     'screen-tasks': { title: 'Tasks', tab: 'tasks' },
     'screen-stub': { title: '', tab: '' }
   };
@@ -3679,17 +4307,6 @@
     scrim.className = 'phone-scrim';
     scrim.dataset.phoneScrim = '';
     frame.append(bar, tabs, scrim);
-  });
-  document.querySelectorAll('[data-view-tabs]').forEach(tabs => {
-    const add = document.createElement('button');
-    add.type = 'button';
-    add.className = 'btn primary phone-add';
-    add.dataset.action = 'add';
-    add.dataset.addOpen = 'marketing';
-    add.textContent = 'Add';
-    const more = tabs.querySelector('.visit-more-wrap');
-    if (more) tabs.insertBefore(add, more);
-    else tabs.appendChild(add);
   });
   function closeVisitMenus() {
     document.querySelectorAll('.visit-menu').forEach(m => { m.hidden = true; });
