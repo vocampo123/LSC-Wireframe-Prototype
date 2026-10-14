@@ -269,8 +269,7 @@
 
   .account-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
   .account-card { background: #fff; border: 0; border-radius: 12px; padding: 14px 16px;
-    cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .account-card:hover { background: #fafafa; }
+    cursor: default; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .doc-avatar { width: 36px; height: 36px; border-radius: 50%; flex: 0 0 36px; align-self: flex-start;
     background: var(--fill-2); color: var(--ink); display: flex; align-items: center; justify-content: center;
     font-size: 13px; font-weight: 600; letter-spacing: -0.02em; }
@@ -1159,7 +1158,7 @@
           </div>
           <div class="page-actions">
             <button class="btn voice">Log a Visit</button>
-            <button class="btn primary" data-nav="accounts">+ Start a Visit</button>
+            <button class="btn primary" data-nav="visits">+ Start a Visit</button>
           </div>
         </div>
 
@@ -1221,7 +1220,7 @@
               <div class="meta"><div class="name">Reorder route for 18 min savings</div>
               <div class="sub">Shah Haddad Ruiz reduces backtracking</div></div>
               <button class="btn">Apply</button></div>
-            <div class="list-item clickable" data-nav="hcp">
+            <div class="list-item">
               <div class="meta"><div class="name">Add Dr. Weiss to tomorrow</div>
               <div class="sub">Nearby · 92d since last visit · Rx trend up</div></div>
               <button class="btn">+ Add</button></div>
@@ -1326,7 +1325,7 @@
             <h2>Suggested for today <span class="chip">Agent</span></h2>
           </div>
           <div class="account-grid">
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">HW</div>
                 <div><div class="name">Dr. Hannah Weiss</div>
@@ -1334,7 +1333,7 @@
               <div class="last-touch-line">Last visit 92d ago · 48d behind cadence · positive</div>
               <div class="account-meta"><span class="tier-pill a">Tier A</span><span class="chip good">Rx up</span><span class="chip">Nearby</span></div>
             </div>
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">KT</div>
                 <div><div class="name">Dr. Kenji Tanaka</div>
@@ -1342,7 +1341,7 @@
               <div class="last-touch-line">Last visit 42d · asked about Neurova PA process</div>
               <div class="account-meta"><span class="tier-pill b">Tier B</span><span class="chip bad">1 overdue</span></div>
             </div>
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">A</div>
                 <div><div class="name">Dr. Alvarez</div>
@@ -1357,7 +1356,7 @@
             <span class="link">See all</span>
           </div>
           <div class="account-grid">
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">PS</div>
                 <div><div class="name">Dr. Priya Shah</div>
@@ -1365,7 +1364,7 @@
               <div class="last-touch-line" id="hcp-card-touch">14d · on-pace · 1 inquiry pending · Rx up</div>
               <div class="account-meta"><span class="tier-pill a">Tier A</span><span class="chip good">On-pace</span></div>
             </div>
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">HW</div>
                 <div><div class="name">Dr. Hannah Weiss</div>
@@ -1373,7 +1372,7 @@
               <div class="last-touch-line">92d · 48d behind · overdue visit</div>
               <div class="account-meta"><span class="tier-pill a">Tier A</span><span class="chip bad">Behind</span></div>
             </div>
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">CW</div>
                 <div><div class="name">Dr. Chen Wu</div>
@@ -1381,7 +1380,7 @@
               <div class="last-touch-line">35d · consent expiring 30d · schedule renewal</div>
               <div class="account-meta"><span class="tier-pill a">Tier A</span><span class="chip warn">Consent 30d</span></div>
             </div>
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">A</div>
                 <div><div class="name">Dr. Alvarez</div>
@@ -1389,7 +1388,7 @@
               <div class="last-touch-line">60d · consent 24d · behind cadence</div>
               <div class="account-meta"><span class="tier-pill a">Tier A</span><span class="chip bad">Behind</span></div>
             </div>
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">ML</div>
                 <div><div class="name">Dr. Marcus Liu</div>
@@ -1397,7 +1396,7 @@
               <div class="last-touch-line">2d · just visited · Rx up positive</div>
               <div class="account-meta"><span class="tier-pill a">Tier A</span><span class="chip good">On-pace</span></div>
             </div>
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">EO</div>
                 <div><div class="name">Dr. Ellis Osei</div>
@@ -1412,7 +1411,7 @@
             <span class="link">See all</span>
           </div>
           <div class="account-grid">
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">ER</div>
                 <div><div class="name">Dr. Elena Ruiz</div>
@@ -1420,7 +1419,7 @@
               <div class="last-touch-line">7d · follow-up owed · consent 60d</div>
               <div class="account-meta"><span class="tier-pill b">Tier B</span><span class="chip warn">Follow-up</span></div>
             </div>
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">OH</div>
                 <div><div class="name">Dr. Omar Haddad</div>
@@ -1428,7 +1427,7 @@
               <div class="last-touch-line">21d · Rx trending down · no inquiry activity</div>
               <div class="account-meta"><span class="tier-pill b">Tier B</span><span class="chip bad">Rx down</span></div>
             </div>
-            <div class="account-card" data-nav="hcp">
+            <div class="account-card">
               <div class="account-head">
                 <div class="doc-avatar" aria-hidden="true">YP</div>
                 <div><div class="name">Dr. Yuki Park</div>
@@ -1498,7 +1497,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip a">A</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">PS</div>Dr. Priya Shah</td>
                 <td>Med Oncology · Pacific Oncology</td>
@@ -1508,7 +1507,7 @@
                 <td>1 inquiry</td>
                 <td>Deliver MA response</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip a">A</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">HW</div>Dr. Hannah Weiss</td>
                 <td>Oncology · Berkeley Cancer</td>
@@ -1518,7 +1517,7 @@
                 <td>—</td>
                 <td>Schedule visit</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip a">A</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">CW</div>Dr. Chen Wu</td>
                 <td>Hematology · UCSF</td>
@@ -1528,7 +1527,7 @@
                 <td>Consent 30d</td>
                 <td>Consent renewal</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip a">A</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">A</div>Dr. Alvarez</td>
                 <td>Oncology · CPMC</td>
@@ -1538,7 +1537,7 @@
                 <td>Consent 24d</td>
                 <td>Consent + visit</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip a">A</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">ML</div>Dr. Marcus Liu</td>
                 <td>Pulmonology · Bay Pulmonary</td>
@@ -1548,7 +1547,7 @@
                 <td>—</td>
                 <td>Follow-up email</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip a">A</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">EO</div>Dr. Ellis Osei</td>
                 <td>Oncology · Kaiser SF</td>
@@ -1558,7 +1557,7 @@
                 <td>—</td>
                 <td>Share Neurova deck</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip b">B</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">ER</div>Dr. Elena Ruiz</td>
                 <td>Internal Med · UCSF</td>
@@ -1568,7 +1567,7 @@
                 <td>MA response</td>
                 <td>Follow-up on inquiry</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip b">B</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">OH</div>Dr. Omar Haddad</td>
                 <td>Internal Med · Mission</td>
@@ -1578,7 +1577,7 @@
                 <td>—</td>
                 <td>Visit · address Rx trend</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip b">B</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">KT</div>Dr. Kenji Tanaka</td>
                 <td>Rheumatology · Alta Bates</td>
@@ -1588,7 +1587,7 @@
                 <td>1 overdue</td>
                 <td>Address PA question</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip c">C</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">YP</div>Dr. Yuki Park</td>
                 <td>Cardiology · Stanford</td>
@@ -1598,7 +1597,7 @@
                 <td>—</td>
                 <td>Intro visit</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip c">C</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">RP</div>Dr. R. Patel</td>
                 <td>Internal Med · San Mateo</td>
@@ -1608,7 +1607,7 @@
                 <td>—</td>
                 <td>Maintain</td>
               </tr>
-              <tr class="clickable" data-nav="hcp">
+              <tr>
                 <td><span class="tier-chip c">C</span></td>
                 <td class="who"><div class="doc-avatar" aria-hidden="true">SK</div>Dr. S. Kim</td>
                 <td>Cardiology · Mills-Peninsula</td>
@@ -1675,7 +1674,6 @@
           <div class="page-actions">
             <button class="btn voice">Log a note</button>
             <button class="btn">Log Follow-up</button>
-            <button class="btn primary" data-nav="visit">Start a Visit</button>
           </div>
         </div>
 
@@ -1732,7 +1730,7 @@
 
           <div class="card" id="hcp-interactions">
             <h2>Recent Interactions</h2>
-            <div class="list-item clickable" data-nav="visit"><div class="meta">
+            <div class="list-item"><div class="meta">
               <div class="name">Sep 23 · in-office visit</div>
               <div class="sub">Oncuvia detailed · 1 inquiry logged · positive sentiment</div></div>
               <span class="chip good">Submitted</span></div>
@@ -1809,7 +1807,7 @@
         <div class="page-header">
           <div>
             <h1 class="page-title">Visits</h1>
-            <p class="page-sub">23 scheduled this week · 1 in progress · 8 submitted</p>
+            <p class="page-sub">23 scheduled this week · 2 in progress · 8 submitted</p>
           </div>
           <div class="page-actions">
             <button class="btn voice">Log past visit</button>
@@ -1819,7 +1817,7 @@
 
         <div class="filters">
           <div class="filter active">Upcoming</div>
-          <div class="filter">In Progress <span class="n">1</span></div>
+          <div class="filter">In Progress <span class="n">2</span></div>
           <div class="filter">Submitted</div>
           <div class="filter">1:1 only</div>
           <div class="filter">Group visits</div>
@@ -1828,6 +1826,23 @@
 
         <div class="visit-group">
           <h3>In Progress</h3>
+          <div class="visit-row" id="visit-row-shah" data-nav="invisit">
+            <div class="vtime">11:30</div>
+            <div class="doc-avatar" aria-hidden="true">PS</div>
+            <div class="vmeta">
+              <div class="name">Dr. Priya Shah · Pacific Oncology</div>
+              <div class="sub">1:1 · Detail Oncuvia · 30 min · Last visit 14d ago</div>
+            </div>
+            <span class="chip warn">Resume</span>
+            <div class="vfields">
+              <span><em>Name</em><b>00000114</b></span>
+              <span><em>Status</em><b>In Progress</b></span>
+              <span><em>Planned start</em><b>Oct 7, 2026 at 11:30 AM</b></span>
+              <span><em>Planned end</em><b>Oct 7, 2026 at 12:00 PM</b></span>
+              <span><em>Visit priority</em><b>High</b></span>
+              <span><em>Visitor</em><b>EC</b></span>
+            </div>
+          </div>
           <div class="visit-row" id="visit-row-lunch" data-nav="invisit" data-nav-mode="group">
             <div class="vtime">10:04</div>
             <div class="vmeta">
@@ -1848,23 +1863,6 @@
 
         <div class="visit-group">
           <h3>Today · Wed Oct 7</h3>
-          <div class="visit-row" id="visit-row-shah" data-nav="invisit">
-            <div class="vtime">11:30</div>
-            <div class="doc-avatar" aria-hidden="true">PS</div>
-            <div class="vmeta">
-              <div class="name">Dr. Priya Shah · Pacific Oncology</div>
-              <div class="sub">1:1 · Detail Oncuvia · 30 min · Last visit 14d ago</div>
-            </div>
-            <span class="chip">Planned</span>
-            <div class="vfields">
-              <span><em>Name</em><b>00000114</b></span>
-              <span><em>Status</em><b>Planned</b></span>
-              <span><em>Planned start</em><b>Oct 7, 2026 at 11:30 AM</b></span>
-              <span><em>Planned end</em><b>Oct 7, 2026 at 12:00 PM</b></span>
-              <span><em>Visit priority</em><b>High</b></span>
-              <span><em>Visitor</em><b>EC</b></span>
-            </div>
-          </div>
           <div class="visit-row" data-nav="invisit" data-nav-mode="group">
             <div class="vtime">12:30</div>
             <div class="vmeta">
@@ -3535,6 +3533,8 @@
     if (e.target.closest('.nav-chev')) return;
     const t = e.target.closest('[data-nav]');
     if (!t) return;
+    const fromAccounts = t.closest('#screen-accounts, #screen-hcp');
+    if (fromAccounts && (t.dataset.nav === 'hcp' || t.dataset.nav === 'visit' || t.dataset.nav === 'invisit')) return;
     const reviewing = t.closest('.modal.is-review:not(.is-submitted)');
     if (reviewing && t.classList.contains('ghost')) {
       e.stopPropagation();
